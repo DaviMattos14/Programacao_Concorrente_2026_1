@@ -49,7 +49,7 @@ void *extra(void *args)
     pthread_mutex_lock(&mutex);
     while (1)
     {
-        while (somando)
+        while (somando && !acabou)
         {
             pthread_cond_wait(&cond_print, &mutex);
         }
@@ -122,7 +122,6 @@ int main(int argc, char *argv[])
             exit(-1);
         }
     }
-
 
     // sinaliza que as workers terminaram
     pthread_mutex_lock(&mutex);
