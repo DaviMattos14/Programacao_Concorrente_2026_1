@@ -202,6 +202,9 @@
   },
   "active": "447c856b3b049200",
   "lastOpenFiles": [
+    "prod_cons.exe",
+    "prod_cons.c",
+    "Listas/mutex_barreira.c",
     "mutex_barreira.exe",
     "mutex_barreira.c",
     "Listas/1º Lista de Exercícios.pdf",
@@ -212,9 +215,6 @@
     "Listas",
     "output/Primeira Lista de Exercicios ProgConc.pdf",
     "output/fork.c",
-    "fork.c",
-    "Conteúdo/Sincronização_locks.pdf",
-    "Conteúdo/pthreads_guia.pdf",
     "README.md",
     "Sem título.md"
   ]
