@@ -126,9 +126,15 @@ int main() {
 
     a. Qual a diferença funcional entre as operações SIGNAL e BROADCAST em uma variável de condição.
 
+	**R:** `ptrhead_cond_signal` envia um sinal para desbloquear uma única thread aleatoriamente, enquanto `pthread_cond_broadcast` envia sinais para desbloquear todas as threads.
+
     b. Por que uma variável de condição deve ser sempre usada em conjunto com um mutex?
 
+	**R:** Para proteger a variável de condição de múltiplos acessos indevidos.
+
     c. O que acontece com o lock (mutex) quando uma thread executa a operação pthread_cond_wait() e o que ocorre quando ela retoma a execução?
+
+	**R:** `lock(mutex)` indica o início de uma seção crítica, impedindo que outras threads executem a seção crítica, após executar o `wait`, o lock permanece travando a seção crítica impedindo que outras threads executem, quando uma thread retorna de `wait`, ela sai da seção crítica permitindo que outra thread na 'fila' execute a seção crítica. 
 
 11. Com relação à sincronização com uso de barreiras, responda: (0,4 ponto)
 
