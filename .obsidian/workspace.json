@@ -200,8 +200,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "7f07ad7adb812a4e",
+  "active": "447c856b3b049200",
   "lastOpenFiles": [
+    "mutex_barreira.exe",
+    "mutex_barreira.c",
     "Listas/1º Lista de Exercícios.pdf",
     "output/1º Lista de Exercícios.md",
     "Listas/Primeira Lista de Exercicios ProgConc.pdf",
@@ -213,8 +215,6 @@
     "fork.c",
     "Conteúdo/Sincronização_locks.pdf",
     "Conteúdo/pthreads_guia.pdf",
-    "Conteúdo/Programaçao_Concorrente.pdf",
-    "Conteúdo/ProcessosThreads.pdf",
     "README.md",
     "Sem título.md"
   ]

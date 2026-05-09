@@ -152,7 +152,7 @@ int main() {
 
     a. Qual a diferença entre semáforo binário e um mutex?
 
-	R: Semáforo binário funciona como uma variável booleana assumindo valores 0 ou 1, enquanto mutex é uma variável especial que precisar executar operações `lock()` e `unlock()`.
+	R: Com `mutex` a mesma thread que trava deve destravar, enquanto com semáforo binário uma thread pode ser destavada por diferentes threads
 
     b. Qual a diferença entre um semáforo de contagem e um semáforo binário?
 
@@ -160,7 +160,7 @@ int main() {
 
     c. Em que situações um semáforo é mais útil que um mutex?
 
-	R: Quando precisamos gerenciar o acesso simultâneo de mais de uma thread em uma variável compartilhada
+	R: Quando precisamos gerenciar o acesso simultâneo de mais de uma thread em algum recurso limitado.
 
     d. Quais são as duas operações atômicas utilizadas para acessá-los?
 
@@ -168,16 +168,77 @@ int main() {
 
     e. Quais as principais limitações de um semáforo?
 
-	R: 
+	R: A inversão de prioridade e o Alto risco de deadlock.
 
 13. Explique a diferença de escopo entre um semáforo inicializado com sem_init() e um aberto com sem_open(). Qual deles é mais adequado para sincronizar dois processos independentes que não compartilham memória? (0,5 ponto)
 
-	R: 
+	R:  `sem_init()` é um semáforo não nomeado criado em memória, enquanto `sem_open()` é associado a um nome global e pode ser acessado por diferentes processos, mesmo que não compartilhem a memória. Tendo isso em vista `sem_open()` é mais adequado.
+	
 
 14. Implementar uma rotina para emular o comportamento de uma barreira para 3 threads utilizando apenas um Mutex e uma Variável de Condição (sem usar pthread_barrier_t). A última thread a chegar deve dar o sinal para todas as outras. (1,0 ponto)
 
-	R: 
+	```C
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <pthread.h>
+	#include <unistd.h>
+	
+	#define NUM_THREADS 3
+	
+	pthread_mutex_t mutex;
+	pthread_cond_t cond;
+	int chegou = 0;
+	void *task(void *arg)
+	{
+	
+	    int id = (int)arg;
+	    pthread_mutex_lock(&mutex);
+	    sleep(2);
+	    printf("Thread %d terminou passo 1\n", id);
+	    if (chegou == NUM_THREADS - 1)
+	    {
+	        chegou = 0;
+	        pthread_cond_broadcast(&cond);
+	    }
+	    else{
+	
+	        chegou++;
+	        pthread_cond_wait(&cond, &mutex);
+	    }
+	    sleep(2);
+	    printf("Thread %d terminou\n", id);
+	    pthread_mutex_unlock(&mutex);
+	    return NULL;
+	}
+	
+	int main()
+	{
+	    pthread_mutex_init(&mutex, NULL);
+	    pthread_cond_init(&cond, NULL);
+	    pthread_t threads[NUM_THREADS];
+	
+	    for (int i = 0; i < NUM_THREADS; i++)
+	    {
+	        if (pthread_create(&threads[i], NULL, task, (void *)i))
+	        {
+	            fprintf(stderr, "Error\n");
+	            return 1;
+	        }
+	    }
+	
+	    for (int i = 0; i < NUM_THREADS; i++)
+	    {
+	        pthread_join(threads[i], NULL);
+	    }
+	
+	    pthread_mutex_destroy(&mutex);
+	    pthread_cond_destroy(&cond);
+	    return 0;
+	}
+	```
 
 15. Estenda o exemplo de produtor-consumidor para usar um array (buffer) de 5 posições. O produtor só pode produzir se houver espaço, e o consumidor só pode consumir se o buffer não estiver vazio. Utilize variáveis de condição para gerenciar esses estados. (1,0 ponto)
 
-	R: 
+	```C
+	
+	```
