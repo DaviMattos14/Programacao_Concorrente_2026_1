@@ -14,14 +14,13 @@ void *task(void *arg)
     int id = (int)arg;
     pthread_mutex_lock(&mutex);
     //sleep(2);
+    chegou++;
     printf("Thread %d terminou passo 1\n", id);
-    if (chegou == NUM_THREADS - 1)
+    if (chegou == NUM_THREADS)
     {
         pthread_cond_broadcast(&cond);
     }
     else{
-
-        chegou++;
         pthread_cond_wait(&cond, &mutex);
     }
     pthread_mutex_unlock(&mutex);
