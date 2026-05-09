@@ -152,19 +152,19 @@ int main() {
 
     a. Qual a diferença entre semáforo binário e um mutex?
 
-	R: 
+	R: Semáforo binário funciona como uma variável booleana assumindo valores 0 ou 1, enquanto mutex é uma variável especial que precisar executar operações `lock()` e `unlock()`.
 
     b. Qual a diferença entre um semáforo de contagem e um semáforo binário?
 
-	R: 
+	R: Semáforo binário assume valores `0` ou `1`, enquanto semáforo de contagem assume valores de `0` a `N`.
 
     c. Em que situações um semáforo é mais útil que um mutex?
 
-	R: 
+	R: Quando precisamos gerenciar o acesso simultâneo de mais de uma thread em uma variável compartilhada
 
     d. Quais são as duas operações atômicas utilizadas para acessá-los?
 
-	R: 
+	R: `wait()` e `post()`
 
     e. Quais as principais limitações de um semáforo?
 
