@@ -130,32 +130,54 @@ int main() {
 
     b. Por que uma variável de condição deve ser sempre usada em conjunto com um mutex?
 
-	**R:** Para proteger a variável de condição de múltiplos acessos indevidos.
+	**R:** Para proteger a verificação da lógica de condição de múltiplos acessos indevidos.
 
     c. O que acontece com o lock (mutex) quando uma thread executa a operação pthread_cond_wait() e o que ocorre quando ela retoma a execução?
 
-	**R:** `lock(mutex)` indica o início de uma seção crítica, impedindo que outras threads executem a seção crítica, após executar o `wait`, o lock permanece travando a seção crítica impedindo que outras threads executem, quando uma thread retorna de `wait`, ela sai da seção crítica permitindo que outra thread na 'fila' execute a seção crítica. 
+	**R:** `lock(mutex)` indica o início de uma seção crítica, impedindo que outras threads executem a seção crítica, após executar o `wait`, o lock é automaticamente liberado para permitir que outras threads entrem na seção crítica e alterem a condição, quando uma thread retorna de `wait`, o lock é readquirido. 
 
 11. Com relação à sincronização com uso de barreiras, responda: (0,4 ponto)
 
     a. Defina o conceito de sincronização por barreira e explique por que ela é comparada a um "ponto de encontro". (0,5 ponto)
 
+	**R:** Sincronização de barreira é um mecanismo que define que todas as threads executem o código até determinado ponto e esperem todas as threads antes que elas sigam para o próximo passo. Esse conceito é comparado a um ponto de encontro pois cada thread pode estar executando uma coisa diferente ou em pontos diferentes, e em algum momento elas devem parar e esperar as outras.
+
     b. Quais são as rotinas da biblioteca Pthreads utilizadas para inicializar, esperar e destruir uma barreira? (0,5 ponto)
+
+	**R:**     Iniciar - `pthread_barrier_init`
+		Esperar - `pthread_barrier_wait`
+		Destruir - `pthread_barrier_destroy`
 
 12. Com relação aos semáforos, responda: (1,0 ponto)
 
     a. Qual a diferença entre semáforo binário e um mutex?
 
+	R: 
+
     b. Qual a diferença entre um semáforo de contagem e um semáforo binário?
+
+	R: 
 
     c. Em que situações um semáforo é mais útil que um mutex?
 
+	R: 
+
     d. Quais são as duas operações atômicas utilizadas para acessá-los?
+
+	R: 
 
     e. Quais as principais limitações de um semáforo?
 
+	R: 
+
 13. Explique a diferença de escopo entre um semáforo inicializado com sem_init() e um aberto com sem_open(). Qual deles é mais adequado para sincronizar dois processos independentes que não compartilham memória? (0,5 ponto)
+
+	R: 
 
 14. Implementar uma rotina para emular o comportamento de uma barreira para 3 threads utilizando apenas um Mutex e uma Variável de Condição (sem usar pthread_barrier_t). A última thread a chegar deve dar o sinal para todas as outras. (1,0 ponto)
 
+	R: 
+
 15. Estenda o exemplo de produtor-consumidor para usar um array (buffer) de 5 posições. O produtor só pode produzir se houver espaço, e o consumidor só pode consumir se o buffer não estiver vazio. Utilize variáveis de condição para gerenciar esses estados. (1,0 ponto)
+
+	R: 
