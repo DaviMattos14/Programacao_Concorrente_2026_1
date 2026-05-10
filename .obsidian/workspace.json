@@ -146,6 +146,25 @@
               "icon": "lucide-list",
               "title": "Sumário de 1º Lista de Exercícios"
             }
+          },
+          {
+            "id": "bfb8c6bb49a7d828",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Listas/1º Lista de Exercícios.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Links inversos para 1º Lista de Exercícios"
+            }
           }
         ],
         "currentTab": 3
@@ -202,6 +221,7 @@
   },
   "active": "447c856b3b049200",
   "lastOpenFiles": [
+    "pc.exe",
     "prod_cons.exe",
     "prod_cons.c",
     "Listas/mutex_barreira.c",
@@ -214,7 +234,6 @@
     "Listas/1º Lista de Exercícios.md",
     "Listas",
     "output/Primeira Lista de Exercicios ProgConc.pdf",
-    "output/fork.c",
     "README.md",
     "Sem título.md"
   ]

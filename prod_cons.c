@@ -9,24 +9,65 @@
 int buffer[BUFFER_SIZE];
 pthread_mutex_t mutex;
 pthread_cond_t cond_cheio, cond_vazio;
-
-
-void insere(int item) {
-    static int in = 0;
-    printf("Produzindo item\n");
-    
-    pthread_mutex_lock(&mutex);
-    buffer[in] = item;
-    in = (in + 1) % BUFFER_SIZE;
-    pthread_mutex_unlock(&mutex);
-}
+int cheio = 0;
 
 void *produtor(void *arg){
 
+    static int in = 0;
+
+    printf("Iniciando Producão\n");
+    for (int i = 0; i < NUM_ITEMS; i++)
+    {
+        pthread_mutex_lock(&mutex);
+        while (cheio == BUFFER_SIZE) {
+            printf("P - Buffer cheio. Aguardando...\n");
+            pthread_cond_wait(&cond_vazio, &mutex);
+        }
+        buffer[in] = i;
+        printf("Produzido: %d\n", buffer[in]);
+        in = (in + 1) % BUFFER_SIZE;
+        cheio++;
+        pthread_cond_signal(&cond_cheio);
+        pthread_mutex_unlock(&mutex);
+    }
+
+    pthread_mutex_lock(&mutex);
+    while (cheio == BUFFER_SIZE) pthread_cond_wait(&cond_vazio, &mutex);
+    buffer[in] = -1;
+    cheio++;
+    printf("Producao finalizada\n");
+    pthread_cond_signal(&cond_cheio);
+    pthread_mutex_unlock(&mutex);
+    pthread_exit(NULL);
 }
 
 void *consumidor(void *arg){
 
+    static int out = 0;
+    int item;
+
+    while (1)
+    {
+        pthread_mutex_lock(&mutex);
+        while (cheio == 0) {
+            printf("C - Buffer vazio. Aguardando...\n");
+            pthread_cond_wait(&cond_cheio, &mutex);
+        }
+        item = buffer[out];
+        if (item == -1)
+        {
+            pthread_mutex_unlock(&mutex);
+            break;
+        }
+        
+        printf("Consumido: %d\n", item);
+        out = (out + 1) % BUFFER_SIZE;
+        cheio--;
+        pthread_cond_signal(&cond_vazio);
+        pthread_mutex_unlock(&mutex);
+
+    }
+    pthread_exit(NULL);
 }
 
 int main() {
