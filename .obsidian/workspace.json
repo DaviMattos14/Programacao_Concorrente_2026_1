@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Listas/1º Lista de Exercícios.md",
+                "file": "Resumo Programação Concorrente.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "1º Lista de Exercícios"
+              "title": "Resumo Programação Concorrente"
             }
           }
         ]
@@ -138,13 +138,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Listas/1º Lista de Exercícios.md",
+                "file": "Resumo Programação Concorrente.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sumário de 1º Lista de Exercícios"
+              "title": "Sumário de Resumo Programação Concorrente"
             }
           },
           {
@@ -153,7 +153,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Listas/1º Lista de Exercícios.md",
+                "file": "Resumo Programação Concorrente.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -163,7 +163,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Links inversos para 1º Lista de Exercícios"
+              "title": "Links inversos para Resumo Programação Concorrente"
             }
           }
         ],
@@ -221,6 +221,8 @@
   },
   "active": "447c856b3b049200",
   "lastOpenFiles": [
+    "Listas/1º Lista de Exercícios.md",
+    "Resumo Programação Concorrente.md",
     "pc.exe",
     "prod_cons.exe",
     "prod_cons.c",
@@ -231,10 +233,7 @@
     "output/1º Lista de Exercícios.md",
     "Listas/Primeira Lista de Exercicios ProgConc.pdf",
     "Listas/fork.c",
-    "Listas/1º Lista de Exercícios.md",
     "Listas",
-    "output/Primeira Lista de Exercicios ProgConc.pdf",
-    "README.md",
-    "Sem título.md"
+    "README.md"
   ]
 }
