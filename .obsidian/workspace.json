@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Resumo Programação Concorrente.md",
+                "file": "Listas/1º Lista de Exercícios.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Resumo Programação Concorrente"
+              "title": "1º Lista de Exercícios"
             }
           }
         ]
@@ -138,13 +138,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Resumo Programação Concorrente.md",
+                "file": "Listas/1º Lista de Exercícios.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sumário de Resumo Programação Concorrente"
+              "title": "Sumário de 1º Lista de Exercícios"
             }
           },
           {
@@ -221,15 +221,15 @@
   },
   "active": "447c856b3b049200",
   "lastOpenFiles": [
-    "Listas/1º Lista de Exercícios.md",
+    "Listas/1º Lista de Exercícios.pdf",
     "Resumo Programação Concorrente.md",
+    "Listas/1º Lista de Exercícios.md",
     "pc.exe",
     "prod_cons.exe",
     "prod_cons.c",
     "Listas/mutex_barreira.c",
     "mutex_barreira.exe",
     "mutex_barreira.c",
-    "Listas/1º Lista de Exercícios.pdf",
     "output/1º Lista de Exercícios.md",
     "Listas/Primeira Lista de Exercicios ProgConc.pdf",
     "Listas/fork.c",
