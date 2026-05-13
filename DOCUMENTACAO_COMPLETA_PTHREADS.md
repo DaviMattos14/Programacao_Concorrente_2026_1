@@ -1276,7 +1276,8 @@ Soma total: 1000.000000 (esperado: 1000.000000)
 
 5. **Use array estático só para número fixo**
    ```c
-   Args args[5]; /* OK se sempre 5 threads */
+   #defiine NUM_THREADS 5
+   Args args[NUM_THREADS]; 
    for (int i = 0; i < 5; i++) pthread_create(&t[i], NULL, f, &args[i]);
    ```
 
