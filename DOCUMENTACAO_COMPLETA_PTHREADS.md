@@ -521,12 +521,12 @@ int pthread_create(
 
 ### Parâmetros
 
-| Parâmetro | Significado |
-|-----------|-------------|
-| `*thread` | Ponteiro onde armazenar ID da thread |
-| `*attr` | Atributos (NULL para padrão) |
-| `start_routine` | Função que a thread executará |
-| `arg` | Um único argumento (void *) |
+| Parâmetro       | Significado                          |
+| --------------- | ------------------------------------ |
+| `*thread`       | Ponteiro onde armazenar ID da thread |
+| `*attr`         | Atributos (NULL para padrão)         |
+| `start_routine` | Função que a thread executará        |
+| `arg`           | Um único argumento (void *)          |
 
 ### Valor de Retorno
 
@@ -644,10 +644,10 @@ int pthread_join(pthread_t thread, void **retval);
 
 ### Parâmetros
 
-| Parâmetro | Significado |
-|-----------|-------------|
-| `thread` | ID da thread a aguardar |
-| `**retval` | Ponteiro para receber valor de retorno |
+| Parâmetro  | Significado                            |     |
+| ---------- | -------------------------------------- | --- |
+| `thread`   | ID da thread a aguardar                |     |
+| `**retval` | Ponteiro para receber valor de retorno |     |
 
 ### Valor de Retorno
 
@@ -759,6 +759,538 @@ Se `main` chamar `pthread_exit`:
 - Processo permanece vivo
 - Threads filhas continuam executando
 - Processo encerra quando última thread terminar
+
+---
+
+# Passagem de Argumentos para Threads
+
+## Definição
+
+Passagem de argumentos refere-se aos mecanismos de enviar dados de uma thread (geralmente a main) para outras threads executadas via `pthread_create`.
+
+## Objetivo
+
+Permitir que threads recebam informações necessárias para sua execução (ID, configurações, dados para processar).
+
+## Desafio Principal
+
+`pthread_create` aceita apenas **um argumento único** do tipo `void *`. Portanto, técnicas são necessárias para passar:
+- **Um valor simples** (int, char, etc.)
+- **Múltiplos valores** (usar struct ou malloc)
+
+## Problema: Race Condition ao Passar Endereço de Loop
+
+### Exemplo Problemático
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+
+void *tarefa(void *arg) {
+    int valor = *(int *)arg;
+    printf("Thread recebeu: %d\n", valor);
+    return NULL;
+}
+
+int main() {
+    pthread_t threads[5];
+    
+    /* PROBLEMA: Passar &i diretamente */
+    for (int i = 0; i < 5; i++) {
+        pthread_create(&threads[i], NULL, tarefa, &i); /* &i muda! */
+    }
+    
+    for (int i = 0; i < 5; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    
+    return 0;
+}
+```
+
+**Saída (Imprevisível):**
+```
+Thread recebeu: 5
+Thread recebeu: 5
+Thread recebeu: 5
+Thread recebeu: 5
+Thread recebeu: 5
+```
+
+**Por que?** Todas as threads veem o valor FINAL de `i` (5), pois o endereço `&i` é o mesmo.
+
+---
+
+## Técnica 1: Passar Valor Simples (Casting)
+
+### Quando Usar
+
+Quando passar um único valor pequeno (int, char, pequeno index).
+
+### Funcionamento
+
+Fazer cast do valor para `void *` e vice-versa. Funciona para valores que cabem em um ponteiro.
+
+### Exemplo: Passagem de Inteiro
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+void *tarefa(void *arg) {
+    /* Converter void * para int */
+    int id = (int)(intptr_t)arg;
+    printf("Thread ID: %d\n", id);
+    return NULL;
+}
+
+int main() {
+    pthread_t threads[5];
+    
+    for (int i = 0; i < 5; i++) {
+        /* Converter int para void * */
+        pthread_create(&threads[i], NULL, tarefa, (void *)(intptr_t)i);
+    }
+    
+    for (int i = 0; i < 5; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    
+    return 0;
+}
+```
+
+### Explicação do Código
+
+1. **Linha `(void *)(intptr_t)i`:** Converte int para void*
+   - `intptr_t` é tipo que cabe um ponteiro e um int
+   - Garante portabilidade em 32/64 bits
+
+2. **Linha na tarefa():** Converte de volta
+   - `(int)(intptr_t)arg` reverte a conversão
+
+### Saída Esperada
+
+```
+Thread ID: 0
+Thread ID: 1
+Thread ID: 2
+Thread ID: 3
+Thread ID: 4
+```
+
+### Problemas
+
+- **Portabilidade:** Nem sempre um int cabe em um ponteiro
+- **Valores negativos:** Podem causar problemas em algumas plataformas
+- **Valores grandes:** Não funciona com long long ou tipos grandes
+
+### Inclusão Necessária
+
+```c
+#include <stdint.h> /* Para intptr_t */
+```
+
+---
+
+## Técnica 2: Alocar Memória (malloc)
+
+### Quando Usar
+
+Quando passar valor que não cabe em ponteiro ou múltiplos valores.
+
+### Funcionamento
+
+1. Alocar memória no heap
+2. Copiar valor para memória
+3. Passar endereço para thread
+4. Thread libera memória
+
+### Exemplo: Passagem de Inteiro com malloc
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+void *tarefa(void *arg) {
+    int *id_ptr = (int *)arg;
+    int id = *id_ptr;
+    printf("Thread ID: %d\n", id);
+    
+    free(id_ptr); /* Libera memória alocada */
+    return NULL;
+}
+
+int main() {
+    pthread_t threads[5];
+    
+    for (int i = 0; i < 5; i++) {
+        int *id_ptr = malloc(sizeof(int)); /* Aloca */
+        *id_ptr = i;
+        pthread_create(&threads[i], NULL, tarefa, id_ptr);
+    }
+    
+    for (int i = 0; i < 5; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    
+    return 0;
+}
+```
+
+### Explicação do Código
+
+1. **Linha malloc:** Aloca espaço para um int
+2. **Linha *id_ptr = i:** Copia valor para memória alocada
+3. **Linha pthread_create:** Passa endereço da memória
+4. **Na tarefa():** Desreferencia para obter valor
+5. **Linha free:** Libera memória na thread
+
+### Saída Esperada
+
+```
+Thread ID: 0
+Thread ID: 1
+Thread ID: 2
+Thread ID: 3
+Thread ID: 4
+```
+
+### Vantagens
+
+- Funciona com qualquer tipo
+- Permite múltiplos valores
+- Mais previsível que casting
+
+### Cuidados
+
+- **Memory leak:** Não esquecer free()
+- **Thread lenta:** Se thread for lenta, malloc ainda é válido
+- **Sincronização:** Cada thread tem seu próprio malloc, sem race
+
+---
+
+## Técnica 3: Usar Struct (Múltiplos Valores)
+
+### Quando Usar
+
+Para passar múltiplos valores de tipos diferentes.
+
+### Funcionamento
+
+1. Define struct com todos os campos
+2. Aloca memória para struct
+3. Preenche campos
+4. Passa ponteiro da struct
+5. Thread acessa campos via ponteiro
+
+### Exemplo: Struct com Múltiplos Dados
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    int id;
+    char nome[50];
+    int valor;
+} thread_args_t;
+
+void *tarefa(void *arg) {
+    thread_args_t *args = (thread_args_t *)arg;
+    
+    printf("Thread %d: Nome=%s, Valor=%d\n", 
+           args->id, args->nome, args->valor);
+    
+    free(args); /* Libera struct */
+    return NULL;
+}
+
+int main() {
+    pthread_t threads[3];
+    
+    for (int i = 0; i < 3; i++) {
+        thread_args_t *args = malloc(sizeof(thread_args_t));
+        
+        args->id = i;
+        sprintf(args->nome, "Thread_%d", i);
+        args->valor = i * 100;
+        
+        pthread_create(&threads[i], NULL, tarefa, args);
+    }
+    
+    for (int i = 0; i < 3; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    
+    return 0;
+}
+```
+
+### Explicação do Código
+
+1. **typedef struct:** Define tipo com múltiplos campos
+2. **malloc(sizeof(thread_args_t)):** Aloca memória para struct
+3. **args->id = i:** Preenche campo id
+4. **pthread_create(..., args):** Passa struct
+5. **Na tarefa():** Acessa campos via `args->campo`
+6. **free(args):** Libera struct inteira
+
+### Saída Esperada
+
+```
+Thread 0: Nome=Thread_0, Valor=0
+Thread 1: Nome=Thread_1, Valor=100
+Thread 2: Nome=Thread_2, Valor=200
+```
+
+### Vantagens
+
+- Organizado e legível
+- Suporta qualquer tipo de dado
+- Escalável para muitos valores
+- Usa stack da thread para variáveis locais
+
+### Padrão Recomendado
+
+```c
+typedef struct {
+    int id;
+    int inicio;
+    int fim;
+    float *dados;
+    /* ... outros campos */
+} worker_t;
+
+void *worker_func(void *arg) {
+    worker_t *w = (worker_t *)arg;
+    /* Usar w->id, w->inicio, etc. */
+    free(w);
+    return NULL;
+}
+```
+
+---
+
+## Técnica 4: Usar Array Estático (Sem Malloc)
+
+### Quando Usar
+
+Quando número de threads é **fixo e pequeno** e não quer malloc.
+
+### Funcionamento
+
+Declarar array de structs estático, preencher, passar endereço.
+
+### Exemplo
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+
+typedef struct {
+    int id;
+    char mensagem[100];
+} Args;
+
+void *tarefa(void *arg) {
+    Args *a = (Args *)arg;
+    printf("ID: %d, Mensagem: %s\n", a->id, a->mensagem);
+    return NULL;
+}
+
+int main() {
+    #define N 3
+    Args args[N]; /* Array estático */
+    pthread_t threads[N];
+    
+    /* Preencher array */
+    for (int i = 0; i < N; i++) {
+        args[i].id = i;
+        sprintf(args[i].mensagem, "Olá %d", i);
+    }
+    
+    /* Criar threads */
+    for (int i = 0; i < N; i++) {
+        pthread_create(&threads[i], NULL, tarefa, &args[i]);
+    }
+    
+    /* Join */
+    for (int i = 0; i < N; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    
+    return 0;
+}
+```
+
+### Vantagens
+
+- Sem malloc/free
+- Simples para número pequeno de threads
+- Sem memory leak
+
+### Problemas
+
+- Número de threads deve ser conhecido em compile-time
+- Não funciona para threads dinâmicas
+- Stack pode ter limite
+
+---
+
+## Comparação de Técnicas
+
+| Técnica | Simplidade | Flexibilidade | Segurança | Caso de Uso |
+|---------|-----------|--------------|-----------|------------|
+| **Casting** | Muito alta | Baixa | Baixa | Um int pequeno |
+| **malloc inteiro** | Alta | Média | Média | Um valor simples |
+| **Struct + malloc** | Média | Alta | Alta | Múltiplos valores (RECOMENDADO) |
+| **Array estático** | Alta | Baixa | Média | Número fixo de threads |
+
+---
+
+## Exemplo Completo: Paralelizar Soma de Vetor
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define N 1000
+#define NUM_THREADS 4
+
+float vetor[N];
+float soma_parcial[NUM_THREADS];
+
+typedef struct {
+    int id;
+    int inicio;
+    int fim;
+} thread_args_t;
+
+void *somar(void *arg) {
+    thread_args_t *args = (thread_args_t *)arg;
+    
+    float soma = 0;
+    for (int i = args->inicio; i < args->fim; i++) {
+        soma += vetor[i];
+    }
+    
+    soma_parcial[args->id] = soma;
+    printf("Thread %d: Somou elementos [%d, %d] = %f\n",
+           args->id, args->inicio, args->fim, soma);
+    
+    free(args);
+    return NULL;
+}
+
+int main() {
+    /* Inicializar vetor */
+    for (int i = 0; i < N; i++) vetor[i] = 1.0;
+    
+    pthread_t threads[NUM_THREADS];
+    int chunk = N / NUM_THREADS;
+    
+    /* Criar threads */
+    for (int i = 0; i < NUM_THREADS; i++) {
+        thread_args_t *args = malloc(sizeof(thread_args_t));
+        args->id = i;
+        args->inicio = i * chunk;
+        args->fim = (i == NUM_THREADS - 1) ? N : (i + 1) * chunk;
+        
+        pthread_create(&threads[i], NULL, somar, args);
+    }
+    
+    /* Aguardar threads */
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    
+    /* Combinar resultados */
+    float soma_total = 0;
+    for (int i = 0; i < NUM_THREADS; i++) {
+        soma_total += soma_parcial[i];
+    }
+    
+    printf("\nSoma total: %f (esperado: %f)\n", soma_total, (float)N);
+    
+    return 0;
+}
+```
+
+### Saída Esperada
+
+```
+Thread 0: Somou elementos [0, 250] = 250.000000
+Thread 1: Somou elementos [250, 500] = 250.000000
+Thread 2: Somou elementos [500, 750] = 250.000000
+Thread 3: Somou elementos [750, 1000] = 250.000000
+
+Soma total: 1000.000000 (esperado: 1000.000000)
+```
+
+---
+
+## Boas Práticas
+
+1. **Use struct para múltiplos valores**
+   ```c
+   /* BOM */
+   typedef struct { int a; int b; char c; } args_t;
+   
+   /* EVITAR */
+   void *arg1, *arg2, *arg3; /* Impossível passar todos */
+   ```
+
+2. **Sempre liberar malloc na thread**
+   ```c
+   void *tarefa(void *arg) {
+       /* ... usar arg */
+       free(arg); /* Sempre! */
+       return NULL;
+   }
+   ```
+
+3. **Se usar casting, inclua stdint.h**
+   ```c
+   #include <stdint.h>
+   pthread_create(&t, NULL, f, (void *)(intptr_t)valor);
+   ```
+
+4. **Não passe endereço de variável local**
+   ```c
+   /* ERRADO */
+   int x = 5;
+   pthread_create(&t, NULL, f, &x); /* &x pode mudar! */
+   
+   /* CERTO */
+   int *x = malloc(sizeof(int));
+   *x = 5;
+   pthread_create(&t, NULL, f, x);
+   ```
+
+5. **Use array estático só para número fixo**
+   ```c
+   Args args[5]; /* OK se sempre 5 threads */
+   for (int i = 0; i < 5; i++) pthread_create(&t[i], NULL, f, &args[i]);
+   ```
+
+---
+
+## Erros Frequentes em Provas
+
+- **Passar &i em loop:** Todas as threads veem valor final
+- **Não liberar malloc:** Memory leak
+- **Cast incorreto intptr_t:** Usar apenas para int, não struct
+- **Misturar técnicas:** Alocar e não liberar depois
+- **Esquecer * ao desreferenciar:** `arg` vs. `*arg`
+- **Struct não inicializada:** Acessar campo com lixo
+- **Não sincronizar acesso a dados compartilhados:** Race condition fora da thread
 
 ---
 
