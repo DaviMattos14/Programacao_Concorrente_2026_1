@@ -1915,7 +1915,7 @@ void *thread2_func(void *arg) {
 ### Quando acontece
 
 - Escalonamento com prioridade sem mecanismo de envelhecimento (aging)
-- Competição intensa por mutex/semaforos
+- Competição intensa por mutex/semáforos
 - Políticas injustas de acesso à região crítica
 
 ### Diferença para Deadlock
