@@ -2,29 +2,31 @@
 
 **Autor:** Especialista em Programação Paralela  
 **Data:** 2026  
-**Escopo:** Guia técnico, didático e prático de Programação Paralela em C  
+**Escopo:** Guia técnico, didático e prático de Programação Paralela em C
 
 ---
 
 ## Índice
 
-1. [Fundamentos](#fundamentos)
-2. [Processos](#processos)
-3. [Threads e pthread_create](#threads)
-4. [pthread_join](#pthread_join)
-5. [pthread_exit](#pthread_exit)
-6. [Seção Crítica e Mutex](#mutex)
-7. [Semáforos](#semáforos)
-8. [Variáveis de Condição](#variáveis-de-condição)
-9. [Barreiras](#barreiras)
-10. [Condição de Corrida](#condição-de-corrida)
-11. [Deadlock](#deadlock)
-12. [Escalonamento](#escalonamento)
-13. [Paralelismo de Dados](#paralelismo-de-dados)
-14. [Paralelismo de Tarefas](#paralelismo-de-tarefas)
-15. [Problema: Produtor-Consumidor](#produtor-consumidor)
-16. [Problema: Leitores-Escritores](#leitores-escritores)
-17. [Problema: Jantar dos Filósofos](#jantar-dos-filósofos)
+1. [Fundamentos](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#fundamentos)
+2. [Processos](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#processos)
+3. [Threads e pthread_create](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#threads)
+4. [pthread_join](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#pthread_join)
+5. [pthread_exit](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#pthread_exit)
+6. [Seção Crítica e Mutex](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#mutex)
+7. [Semáforos](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#sem%C3%A1foros)
+8. [Variáveis de Condição](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#vari%C3%A1veis-de-condi%C3%A7%C3%A3o)
+9. [Barreiras](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#barreiras)
+10. [Condição de Corrida](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#condi%C3%A7%C3%A3o-de-corrida)
+11. [Deadlock](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#deadlock)
+12. [Starvation (Inanição)](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#starvation-inani%C3%A7%C3%A3o)
+13. [Violação de Atomicidade](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#viola%C3%A7%C3%A3o-de-atomicidade)
+14. [Escalonamento](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#escalonamento)
+15. [Paralelismo de Dados](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#paralelismo-de-dados)
+16. [Paralelismo de Tarefas](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#paralelismo-de-tarefas)
+17. [Problema: Produtor-Consumidor](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#produtor-consumidor)
+18. [Problema: Leitores-Escritores](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#leitores-escritores)
+19. [Problema: Jantar dos Filósofos](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#jantar-dos-fil%C3%B3sofos)
 
 ---
 
@@ -40,11 +42,11 @@
 
 ### Comparação
 
-| Modelo | Hardware | Comportamento |
-|--------|----------|---------------|
-| **Sequencial** | 1 CPU | T1 → T2 → T3 |
-| **Concorrente** | 1 CPU | Intercalação de tarefas |
-| **Paralelo** | Múltiplos CPUs | Execução simultânea real |
+|Modelo|Hardware|Comportamento|
+|---|---|---|
+|**Sequencial**|1 CPU|T1 → T2 → T3|
+|**Concorrente**|1 CPU|Intercalação de tarefas|
+|**Paralelo**|Múltiplos CPUs|Execução simultânea real|
 
 ### Ganho de Desempenho
 
@@ -103,11 +105,11 @@ pid_t fork(void);
 
 ## Parâmetros e Retorno
 
-| Retorno | Significado |
-|---------|-------------|
-| **0** | Processo filho |
-| **>0** | PID do filho (pai recebe) |
-| **-1** | Erro |
+|Retorno|Significado|
+|---|---|
+|**0**|Processo filho|
+|**>0**|PID do filho (pai recebe)|
+|**-1**|Erro|
 
 ## Exemplo Completo
 
@@ -198,14 +200,14 @@ Processo Original (PID: 1234)
 
 ## Variantes Principais
 
-| Variante | Formato | Localização |
-|----------|---------|-------------|
-| **execl** | `execl(path, arg0, arg1, ..., NULL)` | Caminho absoluto |
-| **execv** | `execv(path, argv[])` | Vetor de argumentos |
-| **execlp** | `execlp(file, arg0, ..., NULL)` | Busca em PATH |
-| **execvp** | `execvp(file, argv[])` | Vetor + busca PATH |
-| **execle** | `execle(path, arg0, ..., NULL, envp[])` | Com environment |
-| **execve** | `execve(path, argv[], envp[])` | Vetor + environment |
+|Variante|Formato|Localização|
+|---|---|---|
+|**execl**|`execl(path, arg0, arg1, ..., NULL)`|Caminho absoluto|
+|**execv**|`execv(path, argv[])`|Vetor de argumentos|
+|**execlp**|`execlp(file, arg0, ..., NULL)`|Busca em PATH|
+|**execvp**|`execvp(file, argv[])`|Vetor + busca PATH|
+|**execle**|`execle(path, arg0, ..., NULL, envp[])`|Com environment|
+|**execve**|`execve(path, argv[], envp[])`|Vetor + environment|
 
 ## Sintaxe
 
@@ -227,13 +229,13 @@ int execve(const char *path, char *const argv[],char *const envp[]);
 
 ## Parâmetros
 
-| Parâmetro | Significado |
-|-----------|-------------|
-| `path` | Caminho absoluto do executável (ex: `/bin/ls`) |
-| `file` | Nome do executável (busca em PATH) |
-| `arg0, arg1, ...` | Argumentos da linha de comando (arg0 = nome do programa) |
-| `argv[]` | Vetor de argumentos (última entrada = NULL) |
-| `envp[]` | Vetor de variáveis de ambiente (última = NULL) |
+|Parâmetro|Significado|
+|---|---|
+|`path`|Caminho absoluto do executável (ex: `/bin/ls`)|
+|`file`|Nome do executável (busca em PATH)|
+|`arg0, arg1, ...`|Argumentos da linha de comando (arg0 = nome do programa)|
+|`argv[]`|Vetor de argumentos (última entrada = NULL)|
+|`envp[]`|Vetor de variáveis de ambiente (última = NULL)|
 
 ## Valor de Retorno
 
@@ -478,12 +480,12 @@ Permitir paralelismo com baixo custo de criação e facilitar comunicação (com
 
 ### Compartilhamento vs. Contexto Privado
 
-| Compartilhado | Privado por Thread |
-|---------------|-------------------|
-| Variáveis globais | PC (Program Counter) |
-| Heap | Registradores |
-| Arquivos abertos | Stack |
-| Sinais | TID (Thread ID) |
+|Compartilhado|Privado por Thread|
+|---|---|
+|Variáveis globais|PC (Program Counter)|
+|Heap|Registradores|
+|Arquivos abertos|Stack|
+|Sinais|TID (Thread ID)|
 
 ## Risco Principal
 
@@ -521,12 +523,12 @@ int pthread_create(
 
 ### Parâmetros
 
-| Parâmetro       | Significado                          |
-| --------------- | ------------------------------------ |
-| `*thread`       | Ponteiro onde armazenar ID da thread |
-| `*attr`         | Atributos (NULL para padrão)         |
-| `start_routine` | Função que a thread executará        |
-| `arg`           | Um único argumento (void *)          |
+|Parâmetro|Significado|
+|---|---|
+|`*thread`|Ponteiro onde armazenar ID da thread|
+|`*attr`|Atributos (NULL para padrão)|
+|`start_routine`|Função que a thread executará|
+|`arg`|Um único argumento (void *)|
 
 ### Valor de Retorno
 
@@ -644,10 +646,10 @@ int pthread_join(pthread_t thread, void **retval);
 
 ### Parâmetros
 
-| Parâmetro  | Significado                            |     |
-| ---------- | -------------------------------------- | --- |
-| `thread`   | ID da thread a aguardar                |     |
-| `**retval` | Ponteiro para receber valor de retorno |     |
+|Parâmetro|Significado||
+|---|---|---|
+|`thread`|ID da thread a aguardar||
+|`**retval`|Ponteiro para receber valor de retorno||
 
 ### Valor de Retorno
 
@@ -736,11 +738,11 @@ Permitir que a thread retorne um valor sem encerrar o processo.
 
 ### Comparação
 
-| Função | Efeito |
-|--------|--------|
-| `return` | Termina função (thread também) |
-| `pthread_exit()` | Termina apenas a thread |
-| `exit()` | Termina TODO o processo |
+|Função|Efeito|
+|---|---|
+|`return`|Termina função (thread também)|
+|`pthread_exit()`|Termina apenas a thread|
+|`exit()`|Termina TODO o processo|
 
 ### Exemplo
 
@@ -755,6 +757,7 @@ void *tarefa(void *arg) {
 ### Nota Especial: pthread_exit() na main
 
 Se `main` chamar `pthread_exit`:
+
 - Main termina
 - Processo permanece vivo
 - Threads filhas continuam executando
@@ -775,6 +778,7 @@ Permitir que threads recebam informações necessárias para sua execução (ID,
 ## Desafio Principal
 
 `pthread_create` aceita apenas **um argumento único** do tipo `void *`. Portanto, técnicas são necessárias para passar:
+
 - **Um valor simples** (int, char, etc.)
 - **Múltiplos valores** (usar struct ou malloc)
 
@@ -809,6 +813,7 @@ int main() {
 ```
 
 **Saída (Imprevisível):**
+
 ```
 Thread recebeu: 5
 Thread recebeu: 5
@@ -864,11 +869,12 @@ int main() {
 ### Explicação do Código
 
 1. **Linha `(void *)(intptr_t)i`:** Converte int para void*
-   - `intptr_t` é tipo que cabe um ponteiro e um int
-   - Garante portabilidade em 32/64 bits
-
+    
+    - `intptr_t` é tipo que cabe um ponteiro e um int
+    - Garante portabilidade em 32/64 bits
 2. **Linha na tarefa():** Converte de volta
-   - `(int)(intptr_t)arg` reverte a conversão
+    
+    - `(int)(intptr_t)arg` reverte a conversão
 
 ### Saída Esperada
 
@@ -943,7 +949,7 @@ int main() {
 ### Explicação do Código
 
 1. **Linha malloc:** Aloca espaço para um int
-2. **Linha *id_ptr = i:** Copia valor para memória alocada
+2. *_Linha _id_ptr = i:__ Copia valor para memória alocada
 3. **Linha pthread_create:** Passa endereço da memória
 4. **Na tarefa():** Desreferencia para obter valor
 5. **Linha free:** Libera memória na thread
@@ -1144,12 +1150,12 @@ int main() {
 
 ## Comparação de Técnicas
 
-| Técnica | Simplidade | Flexibilidade | Segurança | Caso de Uso |
-|---------|-----------|--------------|-----------|------------|
-| **Casting** | Muito alta | Baixa | Baixa | Um int pequeno |
-| **malloc inteiro** | Alta | Média | Média | Um valor simples |
-| **Struct + malloc** | Média | Alta | Alta | Múltiplos valores (RECOMENDADO) |
-| **Array estático** | Alta | Baixa | Média | Número fixo de threads |
+|Técnica|Simplidade|Flexibilidade|Segurança|Caso de Uso|
+|---|---|---|---|---|
+|**Casting**|Muito alta|Baixa|Baixa|Um int pequeno|
+|**malloc inteiro**|Alta|Média|Média|Um valor simples|
+|**Struct + malloc**|Média|Alta|Alta|Múltiplos valores (RECOMENDADO)|
+|**Array estático**|Alta|Baixa|Média|Número fixo de threads|
 
 ---
 
@@ -1239,46 +1245,52 @@ Soma total: 1000.000000 (esperado: 1000.000000)
 ## Boas Práticas
 
 1. **Use struct para múltiplos valores**
-   ```c
-   /* BOM */
-   typedef struct { int a; int b; char c; } args_t;
-   
-   /* EVITAR */
-   void *arg1, *arg2, *arg3; /* Impossível passar todos */
-   ```
-
+    
+    ```c
+    /* BOM */
+    typedef struct { int a; int b; char c; } args_t;
+    
+    /* EVITAR */
+    void *arg1, *arg2, *arg3; /* Impossível passar todos */
+    ```
+    
 2. **Sempre liberar malloc na thread**
-   ```c
-   void *tarefa(void *arg) {
-       /* ... usar arg */
-       free(arg); /* Sempre! */
-       return NULL;
-   }
-   ```
-
+    
+    ```c
+    void *tarefa(void *arg) {
+        /* ... usar arg */
+        free(arg); /* Sempre! */
+        return NULL;
+    }
+    ```
+    
 3. **Se usar casting, inclua stdint.h**
-   ```c
-   #include <stdint.h>
-   pthread_create(&t, NULL, f, (void *)(intptr_t)valor);
-   ```
-
+    
+    ```c
+    #include <stdint.h>
+    pthread_create(&t, NULL, f, (void *)(intptr_t)valor);
+    ```
+    
 4. **Não passe endereço de variável local**
-   ```c
-   /* ERRADO */
-   int x = 5;
-   pthread_create(&t, NULL, f, &x); /* &x pode mudar! */
-   
-   /* CERTO */
-   int *x = malloc(sizeof(int));
-   *x = 5;
-   pthread_create(&t, NULL, f, x);
-   ```
-
+    
+    ```c
+    /* ERRADO */
+    int x = 5;
+    pthread_create(&t, NULL, f, &x); /* &x pode mudar! */
+    
+    /* CERTO */
+    int *x = malloc(sizeof(int));
+    *x = 5;
+    pthread_create(&t, NULL, f, x);
+    ```
+    
 5. **Use array estático só para número fixo**
-   ```c
-   Args args[5]; /* OK se sempre 5 threads */
-   for (int i = 0; i < 5; i++) pthread_create(&t[i], NULL, f, &args[i]);
-   ```
+    
+    ```c
+    Args args[5]; /* OK se sempre 5 threads */
+    for (int i = 0; i < 5; i++) pthread_create(&t[i], NULL, f, &args[i]);
+    ```
+    
 
 ---
 
@@ -1352,7 +1364,9 @@ Garantir exclusão mútua: apenas uma thread por vez na seção crítica.
 
 ```c
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex; // variável de lock para exclusão mútua
 
+int pthread_mutex_init(&mutex, NULL);
 int pthread_mutex_lock(pthread_mutex_t *mutex);
 int pthread_mutex_unlock(pthread_mutex_t *mutex);
 int pthread_mutex_destroy(pthread_mutex_t *mutex);
@@ -1422,21 +1436,24 @@ Contador final: 4000000 (esperado: 4000000)
 ### Boas Práticas
 
 1. **Minimize a seção crítica:**
-   ```c
-   /* BOM: Cálculo fora do lock */
-   int valor_temp = calculo_pesado();
-   pthread_mutex_lock(&mutex);
-   variavel_compartilhada += valor_temp;
-   pthread_mutex_unlock(&mutex);
-   
-   /* RUIM: Cálculo dentro do lock */
-   pthread_mutex_lock(&mutex);
-   variavel_compartilhada += calculo_pesado();
-   pthread_mutex_unlock(&mutex);
-   ```
-
+    
+    ```c
+    /* BOM: Cálculo fora do lock */
+    int valor_temp = calculo_pesado();
+    pthread_mutex_lock(&mutex);
+    variavel_compartilhada += valor_temp;
+    pthread_mutex_unlock(&mutex);
+    
+    /* RUIM: Cálculo dentro do lock */
+    pthread_mutex_lock(&mutex);
+    variavel_compartilhada += calculo_pesado();
+    pthread_mutex_unlock(&mutex);
+    ```
+    
 2. **Sempre destruir mutex**
+    
 3. **Preferir variáveis locais**
+    
 
 ---
 
@@ -1448,12 +1465,12 @@ Primitiva de sincronização baseada em contador inteiro com operações atômic
 
 ### Tipos
 
-| Tipo | Descrição |
-|------|-----------|
-| **Binário** | Valor 0 ou 1 (similar a mutex) |
-| **Contador** | Valor 0 a N (controla múltiplas instâncias) |
-| **Nomeado** | Global ao sistema (processos independentes) |
-| **Não Nomeado** | Na memória do processo (threads) |
+|Tipo|Descrição|
+|---|---|
+|**Binário**|Valor 0 ou 1 (similar a mutex)|
+|**Contador**|Valor 0 a N (controla múltiplas instâncias)|
+|**Nomeado**|Global ao sistema (processos independentes)|
+|**Não Nomeado**|Na memória do processo (threads)|
 
 ### Operações
 
@@ -1537,11 +1554,11 @@ Carro 3: ESTACIONADO.
 
 ### Diferença entre Mutex e Semáforo
 
-| Aspecto | Mutex | Semáforo |
-|--------|-------|----------|
-| **Instâncias** | 1 por vez | N por vez |
-| **Conceito de Dono** | Sim | Não |
-| **Uso Típico** | Exclusão | Recursos |
+|Aspecto|Mutex|Semáforo|
+|---|---|---|
+|**Instâncias**|1 por vez|N por vez|
+|**Conceito de Dono**|Sim|Não|
+|**Uso Típico**|Exclusão|Recursos|
 
 ---
 
@@ -1906,33 +1923,626 @@ void *thread2_func(void *arg) {
 
 ---
 
-# Starvation
+# Starvation (Inanição)
 
-### Definição
+## Definição
 
-**Starvation** (inanição) ocorre quando uma thread/processo fica esperando por tempo indefinido para acessar um recurso, mesmo com o sistema ainda em execução.
+**Starvation** (inanição) é a condição em que uma thread ou processo é sistematicamente preterido no acesso a um recurso compartilhado, ficando indefinidamente impedido de progredir — mesmo que o sistema como um todo continue operando. Diferente de deadlock, não há bloqueio mútuo: as demais threads avançam, mas uma delas praticamente nunca é atendida.
 
-### Quando acontece
+## Objetivo
 
-- Escalonamento com prioridade sem mecanismo de envelhecimento (aging)
-- Competição intensa por mutex/semáforos
-- Políticas injustas de acesso à região crítica
+Compreender starvation é fundamental para projetar sistemas concorrentes **justos** (_fair_): sistemas onde todas as threads têm garantia de progresso dentro de um intervalo razoável de tempo.
 
-### Diferença para Deadlock
+## Funcionamento
 
-- **Deadlock:** há ciclo de espera; nenhuma thread avança
-- **Starvation:** outras threads avançam, mas uma (ou algumas) quase nunca progride
+### Comportamento na memória e no escalonamento
 
-### Exemplo prático
+A starvation não corrompe dados diretamente. Ela emerge de **políticas de escalonamento ou de sincronização que privilegiam repetidamente as mesmas threads**:
 
-Uma thread de baixa prioridade pode ficar sem CPU porque threads de alta prioridade são sempre escolhidas primeiro.
+- **Escalonamento por prioridade estática:** Threads de baixa prioridade podem nunca ser escolhidas se threads de alta prioridade estão sempre prontas.
+- **Mutex não-justo (padrão POSIX):** O padrão `pthread_mutex_t` não garante ordem FIFO. Uma thread pode ser acordada repetidamente enquanto outra espera na fila indefinidamente.
+- **Semáforos:** `sem_post` acorda uma thread arbitrária; não há garantia de ordem.
+- **Leitores-Escritores com prioridade de leitores:** Se há sempre novos leitores chegando, escritores podem ficar esperando indefinidamente.
 
-### Prevenção
+### Risco de progressão zero
 
-1. Aplicar **aging** para aumentar prioridade de quem espera muito
-2. Usar políticas de lock mais justas (fila FIFO, quando possível)
-3. Reduzir tempo dentro da região crítica
-4. Evitar prioridade excessivamente rígida
+```
+Thread A (alta prioridade): → CPU → CPU → CPU → CPU → CPU → ...
+Thread B (alta prioridade): → CPU → CPU → CPU → CPU → CPU → ...
+Thread C (baixa prioridade):          (nunca recebe CPU)
+```
+
+### Diferença para Deadlock e Livelock
+
+|Fenômeno|Progresso global|Quem está preso|
+|---|---|---|
+|**Deadlock**|Nenhum|Todas as threads envolvidas|
+|**Starvation**|Sim (parcial)|Uma ou poucas threads|
+|**Livelock**|Nenhum real|Todas (trocam estado mas não avançam)|
+
+## Sintaxe Relacionada
+
+```c
+/* Mutex com atributo de protocolo para mitigar starvation por inversão de prioridade */
+pthread_mutexattr_t attr;
+pthread_mutexattr_init(&attr);
+pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
+
+pthread_mutex_t mutex;
+pthread_mutex_init(&mutex, &attr);
+
+/* Verificar se lock está disponível sem bloquear */
+int pthread_mutex_trylock(pthread_mutex_t *mutex);
+
+/* Semáforo com valor explícito para controle manual de justiça */
+sem_t sem;
+sem_init(&sem, 0, valor_inicial);
+```
+
+## Parâmetros Relevantes
+
+|Função/Atributo|Parâmetro|Significado|
+|---|---|---|
+|`pthread_mutexattr_setprotocol`|`PTHREAD_PRIO_INHERIT`|Herda prioridade do esperador mais urgente|
+|`pthread_mutexattr_setprotocol`|`PTHREAD_PRIO_PROTECT`|Usa prioridade máxima predefinida|
+|`sem_init`|`value`|Número de acessos simultâneos permitidos|
+|`pthread_mutex_trylock`|—|Retorna `EBUSY` sem bloquear (útil para implementar backoff)|
+
+## Valor de Retorno
+
+```c
+pthread_mutex_trylock(&mutex);
+/* Retorna: 0 (sucesso), EBUSY (mutex já ocupado), ou código de erro */
+```
+
+## Exemplo Completo
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+/* Demonstra starvation em cenário de leitores-escritores sem controle justo */
+/* Escritor morre de fome enquanto leitores chegam continuamente */
+
+#define MAX_LEITORES 5
+#define ITERACOES    6
+
+pthread_mutex_t mutex       = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t  sem_leitura = PTHREAD_COND_INITIALIZER;
+pthread_cond_t  sem_escrita = PTHREAD_COND_INITIALIZER;
+
+int num_leitores       = 0;  /* Leitores ativos agora */
+int leitores_esperando = 0;  /* Aguardando para entrar */
+int escritor_presente  = 0;  /* Escritor dentro da seção crítica */
+int escritor_esperando = 0;  /* Escritor aguardando */
+
+/* ---------------------------------------------------------------
+ * Versão SEM proteção a starvation: prioridade para leitores
+ * --------------------------------------------------------------- */
+void leitura_sem_fairness_inicio(int id) {
+    pthread_mutex_lock(&mutex);
+
+    /* Leitor entra se não há escritor presente */
+    while (escritor_presente) {
+        leitores_esperando++;
+        pthread_cond_wait(&sem_leitura, &mutex);
+        leitores_esperando--;
+    }
+
+    num_leitores++;
+    printf("Leitor  %d: LENDO  (ativos: %d)\n", id, num_leitores);
+    pthread_mutex_unlock(&mutex);
+}
+
+void leitura_sem_fairness_fim(int id) {
+    pthread_mutex_lock(&mutex);
+    num_leitores--;
+    printf("Leitor  %d: saiu   (ativos: %d)\n", id, num_leitores);
+
+    if (num_leitores == 0) {
+        pthread_cond_signal(&sem_escrita); /* Acorda escritor */
+    }
+
+    pthread_mutex_unlock(&mutex);
+}
+
+/* ---------------------------------------------------------------
+ * Versão COM proteção a starvation: escritor tem prioridade
+ * quando está esperando (aging manual)
+ * --------------------------------------------------------------- */
+void leitura_com_fairness_inicio(int id) {
+    pthread_mutex_lock(&mutex);
+
+    /* Leitor espera se há escritor ativo OU esperando */
+    while (escritor_presente || escritor_esperando > 0) {
+        leitores_esperando++;
+        pthread_cond_wait(&sem_leitura, &mutex);
+        leitores_esperando--;
+    }
+
+    num_leitores++;
+    printf("Leitor  %d: LENDO  (ativos: %d)\n", id, num_leitores);
+    pthread_mutex_unlock(&mutex);
+}
+
+void leitura_com_fairness_fim(int id) {
+    pthread_mutex_lock(&mutex);
+    num_leitores--;
+    printf("Leitor  %d: saiu   (ativos: %d)\n", id, num_leitores);
+
+    if (num_leitores == 0) {
+        pthread_cond_signal(&sem_escrita);
+    }
+
+    pthread_mutex_unlock(&mutex);
+}
+
+void escrita_inicio(int id) {
+    pthread_mutex_lock(&mutex);
+
+    escritor_esperando++;
+    printf("Escritor %d: aguardando acesso exclusivo...\n", id);
+
+    /* Aguarda até não haver leitores nem outro escritor */
+    while (num_leitores > 0 || escritor_presente) {
+        pthread_cond_wait(&sem_escrita, &mutex);
+    }
+
+    escritor_esperando--;
+    escritor_presente = 1;
+    printf("Escritor %d: ESCREVENDO\n", id);
+    pthread_mutex_unlock(&mutex);
+}
+
+void escrita_fim(int id) {
+    pthread_mutex_lock(&mutex);
+    escritor_presente = 0;
+    printf("Escritor %d: terminou\n", id);
+
+    /* Acorda escritores primeiro; só depois leitores */
+    if (escritor_esperando > 0) {
+        pthread_cond_signal(&sem_escrita);
+    } else {
+        pthread_cond_broadcast(&sem_leitura);
+    }
+
+    pthread_mutex_unlock(&mutex);
+}
+
+/* ---------------------------------------------------------------
+ * Threads
+ * --------------------------------------------------------------- */
+void *thread_leitor(void *arg) {
+    int id = (int)(intptr_t)arg;
+
+    for (int i = 0; i < ITERACOES; i++) {
+        leitura_com_fairness_inicio(id);  /* Troque pela versão sem fairness para comparar */
+        usleep(200000);                   /* Simula leitura: 0.2 s */
+        leitura_com_fairness_fim(id);
+        usleep(50000);                    /* Pausa breve antes de reler */
+    }
+
+    return NULL;
+}
+
+void *thread_escritor(void *arg) {
+    int id = (int)(intptr_t)arg;
+
+    for (int i = 0; i < 3; i++) {
+        usleep(100000); /* Simula intervalo antes de escrever */
+        escrita_inicio(id);
+        usleep(300000); /* Simula escrita: 0.3 s */
+        escrita_fim(id);
+    }
+
+    return NULL;
+}
+
+int main(void) {
+    pthread_t leitores[MAX_LEITORES];
+    pthread_t escritor;
+
+    printf("=== Simulacao de Starvation (com protecao ao escritor) ===\n\n");
+
+    /* Cria escritor antes dos leitores para demonstrar que ele tem chance */
+    pthread_create(&escritor, NULL, thread_escritor, (void *)(intptr_t)1);
+
+    for (int i = 0; i < MAX_LEITORES; i++) {
+        pthread_create(&leitores[i], NULL, thread_leitor, (void *)(intptr_t)(i + 1));
+    }
+
+    for (int i = 0; i < MAX_LEITORES; i++) {
+        pthread_join(leitores[i], NULL);
+    }
+    pthread_join(escritor, NULL);
+
+    printf("\nSimulacao concluida.\n");
+
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&sem_leitura);
+    pthread_cond_destroy(&sem_escrita);
+
+    return 0;
+}
+```
+
+## Explicação do Código
+
+1. **`escritor_esperando`:** Contador que sinaliza presença de escritor aguardando. Leitores usam esse campo para ceder prioridade — isso é **aging manual**.
+2. **`leitura_com_fairness_inicio()`:** Leitor bloqueia não apenas quando há escritor ativo, mas também quando há escritor esperando (`escritor_esperando > 0`). Isso interrompe o fluxo contínuo de leitores.
+3. **`escrita_inicio()`:** Incrementa `escritor_esperando` antes de bloquear, garantindo visibilidade para os leitores que vierem depois.
+4. **`escrita_fim()`:** Dá prioridade a escritores pendentes na hora de acordar (`pthread_cond_signal(&sem_escrita)`) antes de liberar leitores com `broadcast`.
+5. **`leitura_sem_fairness_inicio()`:** Versão problemática — ignora `escritor_esperando`, permitindo que leitores entrem mesmo com escritor esperando.
+6. **`usleep()`:** Simula trabalho real dentro e fora da seção crítica para tornar o comportamento visível na saída.
+7. **`pthread_cond_broadcast(&sem_leitura)`:** Acorda todos os leitores quando o escritor termina; eles competem igualmente pelo mutex.
+
+## Saída Esperada
+
+```
+=== Simulacao de Starvation (com protecao ao escritor) ===
+
+Escritor 1: aguardando acesso exclusivo...
+Leitor  1: LENDO  (ativos: 1)
+Leitor  2: LENDO  (ativos: 2)
+Leitor  1: saiu   (ativos: 1)
+Leitor  2: saiu   (ativos: 0)
+Escritor 1: ESCREVENDO
+Escritor 1: terminou
+Leitor  3: LENDO  (ativos: 1)
+Leitor  4: LENDO  (ativos: 2)
+...
+Escritor 1: ESCREVENDO
+Escritor 1: terminou
+
+Simulacao concluida.
+```
+
+> **Comparação:** Se trocar `leitura_com_fairness_inicio` por `leitura_sem_fairness_inicio`, o escritor raramente ou nunca consegue acesso enquanto leitores chegam continuamente.
+
+## Possíveis Problemas
+
+- **Starvation de escritores:** Ocorre quando leitores chegam em fluxo contínuo e o lock não respeita `escritor_esperando`.
+- **Starvation de baixa prioridade em escalonamento:** Thread com `SCHED_OTHER` e `nice` alto nunca ganha CPU se há threads `SCHED_FIFO` sempre prontas.
+- **Inversão de prioridade:** Thread de alta prioridade espera por mutex retido por thread de baixa prioridade — a de alta fica privada de CPU indiretamente.
+- **Aging ausente:** Sem incremento progressivo de prioridade, threads de menor peso podem esperar indefinidamente.
+- **`pthread_cond_signal` arbitrário:** Acorda uma thread qualquer; sem ordem FIFO, as mesmas threads podem ser acordadas repetidamente.
+
+## Boas Práticas
+
+1. **Registre o tempo de espera:** Implemente aging explícito para qualquer fila de espera crítica.
+    
+    ```c
+    /* Registrar timestamp de entrada na fila */clock_gettime(CLOCK_MONOTONIC, &entrada);/* Comparar no escalonador para elevar prioridade */
+    ```
+    
+2. **Use `PTHREAD_PRIO_INHERIT` em mutexes críticos** para mitigar inversão de prioridade.
+3. **Prefira `pthread_cond_broadcast` a `pthread_cond_signal`** quando múltiplas threads podem ser elegíveis — evita que a mesma thread seja acordada repetidamente.
+4. **Minimize o tempo na seção crítica** para reduzir a janela em que outros esperam.
+5. **Em leitores-escritores, contabilize escritores esperando** antes de deixar novos leitores entrarem.
+6. **Teste com `valgrind --tool=helgrind`** para detectar padrões de acesso injusto.
+7. **Evite prioridades estáticas sem aging** em sistemas de longa execução.
+
+## Comparação com Execução Sequencial
+
+|Aspecto|Sequencial|Paralelo sem fairness|Paralelo com fairness|
+|---|---|---|---|
+|Progresso de todas as threads|N/A|Não garantido|Garantido|
+|Throughput|Baixo|Alto|Alto|
+|Latência de escritores|N/A|Pode ser infinita|Limitada e previsível|
+|Complexidade|Mínima|Média|Maior|
+
+## Resumo Rápido
+
+```
+Starvation
+├── Causa: política injusta de escalonamento ou sincronização
+├── Efeito: thread não progride, mas sistema segue funcionando
+├── Diferença do Deadlock: outras threads avançam
+├── Solução principal: aging + prioridade de escritores
+└── Detecção: thread em WAITING por tempo anormalmente longo
+```
+
+---
+
+# Violação de Atomicidade
+
+## Definição
+
+**Violação de Atomicidade** (_Atomicity Violation_) é um bug de concorrência que ocorre quando um trecho de código que **deveria ser executado como uma unidade indivisível** (atomicamente) é interrompido entre duas ou mais operações distintas por outra thread, quebrando o invariante lógico que as operações juntas deveriam garantir.
+
+Em outras palavras: o programador assume que "verificar" e "usar" um dado acontecem sem interrupção, mas o SO pode escalonar outra thread entre essas duas operações.
+
+## Objetivo
+
+Compreender violações de atomicidade é essencial para:
+
+- Identificar **race conditions sutis** que não são óbvias como um simples `contador++` sem lock.
+- Projetar seções críticas que agrupem corretamente todas as operações interdependentes.
+- Distinguir violações de atomicidade de outras categorias de bugs concorrentes (deadlock, starvation, violação de ordem).
+
+## Funcionamento
+
+### Comportamento na memória
+
+Uma violação de atomicidade envolve tipicamente um padrão **"check-then-act"** ou **"read-modify-write"** sem proteção adequada:
+
+```
+Thread A                     Thread B
+────────────────────         ────────────────────
+verifica condição (ok)       ← intercalação aqui
+                             modifica o estado
+age sobre o estado           ← estado já inválido!
+```
+
+A condição verificada por A era verdadeira **no momento da verificação**, mas tornou-se falsa antes de A agir sobre ela.
+
+### Tipos comuns
+
+|Tipo|Padrão|Exemplo|
+|---|---|---|
+|**Check-then-act**|Verificar estado → agir com base nele|`if (ptr != NULL) ptr->campo = 1`|
+|**Read-modify-write**|Ler valor → modificar → gravar|`x = x + y` com x e y compartilhados|
+|**Transação incompleta**|Atualizar múltiplos campos relacionados|Atualizar saldo e histórico separadamente|
+
+### Compartilhamento de recursos e riscos
+
+- A violação exige pelo menos **um acesso de escrita** intercalado.
+- Pode ocorrer mesmo com dados que parecem "simples" (ponteiros, flags booleanas).
+- É especialmente perigosa com ponteiros: verificar `ptr != NULL` e depois usar `ptr->dado` são duas operações separadas na máquina.
+
+## Sintaxe
+
+```c
+/* ERRADO: check e act sem proteção */
+if (ptr != NULL) {          /* Verificação */
+    valor = ptr->campo;     /* Uso — outra thread pode ter liberado ptr aqui! */
+}
+
+/* CORRETO: check e act dentro do mesmo lock */
+pthread_mutex_lock(&mutex);
+if (ptr != NULL) {
+    valor = ptr->campo;
+}
+pthread_mutex_unlock(&mutex);
+```
+
+## Parâmetros
+
+|Elemento|Papel na proteção|
+|---|---|
+|`pthread_mutex_lock`|Garante que nenhuma outra thread entra na seção entre check e act|
+|`pthread_mutex_unlock`|Libera o lock após **toda** a operação composta estar completa|
+|Seção crítica|Deve englobar **todas** as operações que dependem do mesmo invariante|
+
+## Valor de Retorno
+
+As funções de mutex retornam:
+
+- **0:** Sucesso
+- **Código de erro (não-zero):** Falha (EINVAL, EDEADLK, etc.)
+
+## Exemplo Completo
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+/* Exemplo: Violação de atomicidade em acesso a ponteiro compartilhado */
+/* Thread Leitora verifica ptr e usa ptr->valor */
+/* Thread Liberadora libera ptr entre essas duas operações */
+
+typedef struct {
+    int valor;
+} Dado;
+
+Dado *ptr_global = NULL;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+/* ---------------------------------------------------------------
+ * Versão com VIOLAÇÃO de atomicidade (bugada)
+ * --------------------------------------------------------------- */
+void *leitora_bugada(void *arg) {
+    /* Passo 1: Verifica ponteiro */
+    if (ptr_global != NULL) {  /* OK neste instante... */
+
+        /* ← AQUI outra thread pode fazer free(ptr_global) e ptr_global = NULL */
+        usleep(10000); /* Simula intercalação — em código real não existe este sleep */
+
+        /* Passo 2: Usa ponteiro — PODE CAUSAR SEGFAULT! */
+        printf("[BUGADA] Valor lido: %d\n", ptr_global->valor); /* Undefined behavior */
+    }
+    return NULL;
+}
+
+/* ---------------------------------------------------------------
+ * Versão CORRETA: check e act dentro do mesmo lock
+ * --------------------------------------------------------------- */
+void *leitora_correta(void *arg) {
+    pthread_mutex_lock(&mutex);
+
+    /* Verificação e uso são agora uma única operação atômica */
+    if (ptr_global != NULL) {
+        printf("[CORRETA] Valor lido: %d\n", ptr_global->valor);
+    } else {
+        printf("[CORRETA] Ponteiro nulo, nada a ler.\n");
+    }
+
+    pthread_mutex_unlock(&mutex);
+    return NULL;
+}
+
+void *liberadora(void *arg) {
+    usleep(5000); /* Simula atraso antes de liberar */
+
+    pthread_mutex_lock(&mutex);
+
+    if (ptr_global != NULL) {
+        printf("[LIBERADORA] Liberando recurso...\n");
+        free(ptr_global);
+        ptr_global = NULL;
+        printf("[LIBERADORA] Ponteiro liberado e zerado.\n");
+    }
+
+    pthread_mutex_unlock(&mutex);
+    return NULL;
+}
+
+/* ---------------------------------------------------------------
+ * Segundo exemplo: Violação em transação de múltiplos campos
+ * --------------------------------------------------------------- */
+typedef struct {
+    int saldo;
+    int num_transacoes;
+} Conta;
+
+Conta conta = {1000, 0};
+pthread_mutex_t mutex_conta = PTHREAD_MUTEX_INITIALIZER;
+
+/* ERRADO: atualiza campos separadamente */
+void debitar_bugado(int valor) {
+    conta.saldo -= valor;        /* Thread B pode ler entre aqui... */
+    conta.num_transacoes++;      /* ...e aqui, vendo estado inconsistente */
+}
+
+/* CORRETO: agrupa toda a transação no lock */
+void debitar_correto(int valor) {
+    pthread_mutex_lock(&mutex_conta);
+    conta.saldo -= valor;
+    conta.num_transacoes++;
+    pthread_mutex_unlock(&mutex_conta);
+}
+
+void *thread_debito(void *arg) {
+    int valor = (int)(intptr_t)arg;
+
+    debitar_correto(valor);
+    printf("Debitou %d | Saldo: %d | Transacoes: %d\n",
+           valor, conta.saldo, conta.num_transacoes);
+
+    return NULL;
+}
+
+/* ---------------------------------------------------------------
+ * main
+ * --------------------------------------------------------------- */
+int main(void) {
+    /* --- Demonstração 1: check-then-act com ponteiro --- */
+    printf("=== Demonstracao 1: check-then-act (versao CORRETA) ===\n");
+
+    ptr_global = malloc(sizeof(Dado));
+    ptr_global->valor = 42;
+
+    pthread_t t_leit, t_lib;
+    pthread_create(&t_lib,  NULL, liberadora,      NULL);
+    pthread_create(&t_leit, NULL, leitora_correta, NULL);
+
+    pthread_join(t_lib,  NULL);
+    pthread_join(t_leit, NULL);
+
+    /* --- Demonstração 2: transação de múltiplos campos --- */
+    printf("\n=== Demonstracao 2: transacao atomica de conta ===\n");
+
+    pthread_t debitadores[4];
+    int valores[4] = {100, 200, 50, 150};
+
+    for (int i = 0; i < 4; i++) {
+        pthread_create(&debitadores[i], NULL, thread_debito,
+                       (void *)(intptr_t)valores[i]);
+    }
+
+    for (int i = 0; i < 4; i++) {
+        pthread_join(debitadores[i], NULL);
+    }
+
+    printf("\nSaldo final: %d | Total de transacoes: %d\n",
+           conta.saldo, conta.num_transacoes);
+
+    pthread_mutex_destroy(&mutex);
+    pthread_mutex_destroy(&mutex_conta);
+    return 0;
+}
+```
+
+## Explicação do Código
+
+1. **`leitora_bugada()`:** Realiza `if (ptr_global != NULL)` e depois acessa `ptr_global->valor` em dois momentos distintos e desprotegidos. Entre eles, `liberadora` pode chamar `free(ptr_global)`, tornando o ponteiro inválido — undefined behavior clássico.
+2. **`usleep(10000)` artificial:** Simula o intervalo que naturalmente existe em execução real entre a verificação e o uso; em código de produção esse intervalo existe mesmo sem sleep, pois o SO pode escalonar outra thread a qualquer instrução.
+3. **`leitora_correta()`:** Agrupa verificação e uso dentro do mesmo `pthread_mutex_lock`/`unlock`, tornando o par uma operação atômica. A thread `liberadora` não pode modificar `ptr_global` enquanto a leitora está dentro do lock.
+4. **`liberadora()`:** Também usa o mesmo mutex antes de fazer `free` e zerar o ponteiro — imprescindível para que a proteção seja bilateral.
+5. **`debitar_bugado()`:** Modifica `saldo` e `num_transacoes` em operações separadas. Uma thread leitora pode observar `saldo` já decrementado mas `num_transacoes` ainda não incrementado — estado inconsistente.
+6. **`debitar_correto()`:** Toda a transação (dois campos) está dentro de um único lock, garantindo que nenhuma thread veja estado intermediário.
+7. **`thread_debito()`:** Usa `debitar_correto` e imprime estado após a transação, também dentro do contexto seguro.
+
+## Saída Esperada
+
+```
+=== Demonstracao 1: check-then-act (versao CORRETA) ===
+[LIBERADORA] Liberando recurso...
+[LIBERADORA] Ponteiro liberado e zerado.
+[CORRETA] Ponteiro nulo, nada a ler.
+
+=== Demonstracao 2: transacao atomica de conta ===
+Debitou 100 | Saldo: 900 | Transacoes: 1
+Debitou 200 | Saldo: 700 | Transacoes: 2
+Debitou  50 | Saldo: 650 | Transacoes: 3
+Debitou 150 | Saldo: 500 | Transacoes: 4
+
+Saldo final: 500 | Total de transacoes: 4
+```
+
+> A ordem dos débitos pode variar (concorrência), mas saldo e número de transações serão sempre consistentes entre si.
+
+## Possíveis Problemas
+
+- **Segmentation Fault por ponteiro dangling:** `ptr` foi liberado entre a verificação `!= NULL` e o uso `ptr->campo`.
+- **Estado de objeto inconsistente:** Dois campos logicamente vinculados (saldo + histórico) são atualizados em momentos diferentes, permitindo observação de estado inválido.
+- **Dificuldade de reprodução:** A janela de intercalação pode ser de nanossegundos, tornando o bug raro em testes mas catastrófico em produção sob carga.
+- **Falsa sensação de segurança:** Cada operação individualmente "parece" segura, mas a combinação não é.
+- **Double-checked locking incorreto:** Padrão de otimização que verifica condição fora e dentro do lock sem barreiras de memória adequadas.
+
+## Boas Práticas
+
+1. **Identifique invariantes:** Liste quais variáveis devem ser consistentes entre si e proteja todas elas com o mesmo lock.
+    
+    ```c
+    /* Invariante: saldo e historico devem refletir exatamente as mesmas transações */pthread_mutex_lock(&mutex);saldo -= valor;historico[n_trans++] = valor;pthread_mutex_unlock(&mutex);
+    ```
+    
+2. **Nunca separe check e act em operações protegidas por locks distintos** — a proteção deve ser a mesma instância de mutex.
+3. **Desconfie do padrão `if (x != NULL) usar(x)`** em código concorrente — quase sempre requer lock ao redor de ambas as linhas.
+4. **Use `pthread_mutex_trylock` com cautela:** Pode introduzir race conditions se o fluxo alternativo não for cuidadosamente analisado.
+5. **Prefira objetos imutáveis** quando possível — eliminam violações de atomicidade por definição.
+6. **Ferramentas:** `helgrind` (Valgrind), `ThreadSanitizer` (`-fsanitize=thread`) detectam violações de atomicidade em tempo de execução.
+    
+    ```bash
+    gcc -fsanitize=thread -g programa.c -o programa -lpthread./programa
+    ```
+    
+
+## Comparação com Execução Sequencial
+
+|Aspecto|Sequencial|Paralelo sem atomicidade|Paralelo com atomicidade|
+|---|---|---|---|
+|Consistência de estado|Sempre garantida|Pode ser violada a qualquer momento|Garantida dentro do lock|
+|Desempenho|Base|Maior throughput, mas bugs|Throughput alto e correto|
+|Depuração|Simples|Muito difícil (não-determinístico)|Mais previsível|
+
+## Resumo Rápido
+
+```
+Violação de Atomicidade
+├── Causa: operações interdependentes sem lock compartilhado
+├── Padrão típico: "check-then-act" ou "read-modify-write"
+├── Efeito: estado inconsistente, segfault, dados corrompidos
+├── Solução: englobar TODAS as operações dependentes no MESMO mutex
+├── Detecção: ThreadSanitizer (-fsanitize=thread), helgrind
+└── Diferença de Race Condition simples: envolve semântica de composição,
+    não apenas acesso desprotegido a um único dado
+```
 
 ---
 
@@ -1944,19 +2554,19 @@ Processo pelo qual o SO decide qual thread/processo em estado "Pronto" ganha a C
 
 ### Algoritmos Comuns
 
-| Algoritmo | Descrição | Problema |
-|-----------|-----------|----------|
-| **FCFS** | Primeira que chega, primeira a usar | Filas longas se primeira tarefa for pesada |
-| **Round Robin (RR)** | Cada uma recebe quantum de tempo | Pode gerar muitos context switches |
-| **SPN** | Tarefa mais curta primeiro | Inanição de tarefas longas |
-| **Prioridade** | Maior prioridade primeiro | Inanição; mitigado com envelhecimento (aging) |
+|Algoritmo|Descrição|Problema|
+|---|---|---|
+|**FCFS**|Primeira que chega, primeira a usar|Filas longas se primeira tarefa for pesada|
+|**Round Robin (RR)**|Cada uma recebe quantum de tempo|Pode gerar muitos context switches|
+|**SPN**|Tarefa mais curta primeiro|Inanição de tarefas longas|
+|**Prioridade**|Maior prioridade primeiro|Inanição; mitigado com envelhecimento (aging)|
 
 ### Tipos
 
-| Tipo | Característica |
-|------|-----------------|
-| **Preemptivo** | SO pode interromper tarefa (fim quantum, prioridade) |
-| **Não-Preemptivo** | Tarefa executa até terminar ou bloquear |
+|Tipo|Característica|
+|---|---|
+|**Preemptivo**|SO pode interromper tarefa (fim quantum, prioridade)|
+|**Não-Preemptivo**|Tarefa executa até terminar ou bloquear|
 
 ### Quantum e Context Switch
 
@@ -2624,18 +3234,18 @@ Filósofo 2: COMENDO
 
 ## Resumo Rápido (Referência)
 
-| Conceito | Sintaxe | Objetivo |
-|----------|---------|----------|
-| **pthread_create** | `pthread_create(&tid, NULL, func, arg)` | Criar thread |
-| **pthread_join** | `pthread_join(tid, &retval)` | Aguardar término |
-| **pthread_exit** | `pthread_exit(retval)` | Terminar thread |
-| **Mutex Lock** | `pthread_mutex_lock(&m)` | Entrar seção crítica |
-| **Mutex Unlock** | `pthread_mutex_unlock(&m)` | Sair seção crítica |
-| **Cond Wait** | `pthread_cond_wait(&c, &m)` | Aguardar condição |
-| **Cond Signal** | `pthread_cond_signal(&c)` | Acordar 1 thread |
-| **Barrier Wait** | `pthread_barrier_wait(&b)` | Sincronizar fases |
-| **Sem Wait** | `sem_wait(&s)` | Decrementar semáforo |
-| **Sem Post** | `sem_post(&s)` | Incrementar semáforo |
+|Conceito|Sintaxe|Objetivo|
+|---|---|---|
+|**pthread_create**|`pthread_create(&tid, NULL, func, arg)`|Criar thread|
+|**pthread_join**|`pthread_join(tid, &retval)`|Aguardar término|
+|**pthread_exit**|`pthread_exit(retval)`|Terminar thread|
+|**Mutex Lock**|`pthread_mutex_lock(&m)`|Entrar seção crítica|
+|**Mutex Unlock**|`pthread_mutex_unlock(&m)`|Sair seção crítica|
+|**Cond Wait**|`pthread_cond_wait(&c, &m)`|Aguardar condição|
+|**Cond Signal**|`pthread_cond_signal(&c)`|Acordar 1 thread|
+|**Barrier Wait**|`pthread_barrier_wait(&b)`|Sincronizar fases|
+|**Sem Wait**|`sem_wait(&s)`|Decrementar semáforo|
+|**Sem Post**|`sem_post(&s)`|Incrementar semáforo|
 
 ---
 
