@@ -1077,6 +1077,36 @@ void *thread2_func(void *arg) {
 
 ---
 
+# Starvation
+
+### Definição
+
+**Starvation** (inanição) ocorre quando uma thread/processo fica esperando por tempo indefinido para acessar um recurso, mesmo com o sistema ainda em execução.
+
+### Quando acontece
+
+- Escalonamento com prioridade sem mecanismo de envelhecimento (aging)
+- Competição intensa por mutex/semáforos
+- Políticas injustas de acesso à região crítica
+
+### Diferença para Deadlock
+
+- **Deadlock:** há ciclo de espera; nenhuma thread avança
+- **Starvation:** outras threads avançam, mas uma (ou algumas) quase nunca progride
+
+### Exemplo prático
+
+Uma thread de baixa prioridade pode ficar sem CPU porque threads de alta prioridade são sempre escolhidas primeiro.
+
+### Prevenção
+
+1. Aplicar **aging** para aumentar prioridade de quem espera muito
+2. Usar políticas de lock mais justas (fila FIFO, quando possível)
+3. Reduzir tempo dentro da região crítica
+4. Evitar prioridade excessivamente rígida
+
+---
+
 # Escalonamento
 
 ### Definição
