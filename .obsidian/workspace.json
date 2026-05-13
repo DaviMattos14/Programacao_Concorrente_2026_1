@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Resumo Programação Concorrente.md",
+                "file": "Conteúdo/Resumo Programação Concorrente.md",
                 "mode": "source",
                 "source": false
               },
@@ -27,7 +27,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Processos e Pthreads.md",
+                "file": "Conteúdo/Processos e Pthreads.md",
                 "mode": "source",
                 "source": false
               },
@@ -41,7 +41,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Pthreads em C.md",
+                "file": "Conteúdo/Pthreads em C.md",
                 "mode": "source",
                 "source": false
               },
@@ -55,7 +55,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Arquiteturas Paralelas e Avaliação de Desempenho.md",
+                "file": "Conteúdo/Arquiteturas Paralelas e Avaliação de Desempenho.md",
                 "mode": "source",
                 "source": false
               },
@@ -83,12 +83,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "DOCUMENTACAO_COMPLETA_PTHREADS.md",
+                "file": "Conteúdo/Resumo Programação Concorrente.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DOCUMENTACAO_COMPLETA_PTHREADS"
+              "title": "Resumo Programação Concorrente"
             }
           },
           {
@@ -97,7 +97,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Sincronização Avançada.md",
+                "file": "Conteúdo/Sincronização Avançada.md",
                 "mode": "source",
                 "source": false
               },
@@ -223,13 +223,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "DOCUMENTACAO_COMPLETA_PTHREADS.md",
+                "file": "Conteúdo/Resumo Programação Concorrente.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sumário de DOCUMENTACAO_COMPLETA_PTHREADS"
+              "title": "Sumário de Resumo Programação Concorrente"
             }
           },
           {
@@ -304,18 +304,18 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2ca874c6b90c2092",
+  "active": "e57d3aeafda34350",
   "lastOpenFiles": [
+    "Conteúdo/Arquiteturas Paralelas e Avaliação de Desempenho.md",
+    "Conteúdo/DOCUMENTACAO_COMPLETA_PTHREADS.md",
     "Conteúdo/DOCUMENTACAO_COMPLETA_PTHREADS.pdf",
-    "Programação Paralela em C com Pthreads.md",
+    "Conteúdo/Programação Paralela em C com Pthreads.md",
     "README.md",
-    "Pthreads em C.md",
-    "DOCUMENTACAO_COMPLETA_PTHREADS.md",
-    "Processos e Pthreads.md",
-    "Sincronização com Pthreads.md",
-    "Arquiteturas Paralelas e Avaliação de Desempenho.md",
-    "Resumo Programação Concorrente.md",
-    "Sincronização Avançada.md",
+    "Conteúdo/Pthreads em C.md",
+    "Conteúdo/Processos e Pthreads.md",
+    "Conteúdo/Sincronização com Pthreads.md",
+    "Conteúdo/Resumo Programação Concorrente.md",
+    "Conteúdo/Sincronização Avançada.md",
     "Listas/1º Lista de Exercícios.md",
     "Listas/1º Lista de Exercícios.pdf",
     "pc.exe",
@@ -326,7 +326,6 @@
     "mutex_barreira.c",
     "output/1º Lista de Exercícios.md",
     "Listas/Primeira Lista de Exercicios ProgConc.pdf",
-    "Listas/fork.c",
-    "Listas"
+    "Listas/fork.c"
   ]
 }
