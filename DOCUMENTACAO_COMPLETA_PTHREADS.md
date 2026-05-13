@@ -1582,9 +1582,12 @@ Evitar "espera ocupada" (busy waiting): em vez de testar repetidamente uma condi
 ### Sintaxe
 
 ```c
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t mutex;
+pthread_cond_t cond;
 
-int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
+int pthread_mutex_init(pthread_mutex_t *mutex,const pthread_mutexattr_t *attr);
+int pthread_cond_init(pthread_cond_t *cond,const pthread_condattr_t *attr);
+int pthread_cond_wait(pthread_cond_t *cond,pthread_mutex_t *mutex);
 int pthread_cond_signal(pthread_cond_t *cond);
 int pthread_cond_broadcast(pthread_cond_t *cond);
 ```
