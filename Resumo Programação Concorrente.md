@@ -1,256 +1,168 @@
-## Sumário Executivo
+# Guia de Estudo: Programação Paralela e Concorrente – Arquiteturas, Processos e Threads
+# 1. Visão Geral
 
-Este documento sintetiza os fundamentos das arquiteturas paralelas, o ciclo de vida da transformação de programas e a gestão de processos e threads em sistemas operacionais modernos. O estudo abrange desde os níveis de paralelismo (instrução, thread e processo) até a taxonomia de Flynn, detalhando arquiteturas de memória compartilhada (UMA/NUMA) e distribuída. Um foco considerável é dado aos aceleradores modernos, como as GPUs NVIDIA Hopper e AMD Instinct, explorando suas hierarquias de memória e núcleos de processamento. Adicionalmente, o guia descreve a mecânica interna dos sistemas operacionais: a compilação de código, o formato ELF, a criação de processos via `fork()` e `exec()`, o fenômeno dos processos zumbis e as complexas políticas de escalonamento que garantem a eficiência computacional. Por fim, diferencia-se o funcionamento de threads de usuário e de kernel, fundamentais para a concorrência moderna.
+O objetivo central deste conteúdo é compreender como o hardware e o software se organizam para executar múltiplas tarefas simultaneamente, visando ganho de desempenho e eficiência energética. A programação paralela é aplicada hoje desde supercomputadores para previsões climáticas até dispositivos móveis e aceleradores de Inteligência Artificial (IA).
+
+### Diferenciação Essencial
+
+- **Concorrência:** Gerenciamento de múltiplos fluxos de execução que podem ou não ocorrer ao mesmo tempo (comum em sistemas multitarefa).
+- **Paralelismo:** Execução simultânea de tarefas em múltiplos recursos de processamento (núcleos ou processadores).
+- **Distribuição:** Execução em múltiplos nós computacionais independentes que se comunicam via rede (clusters).
+
+### Níveis de Execução
+
+1. **Instrução (Granulosidade Fina):** Execução simultânea de instruções via hardware (pipeline, superescalares). Transparente ao programador.
+2. **Thread (Granulosidade Média):** Múltiplos fluxos dentro de um processo. Requer intervenção do programador ou compilador.
+3. **Processo (Granulosidade Grossa):** Unidade computacional independente em multiprocessadores ou multicomputadores. Requer bibliotecas como MPI ou suporte do SO.
 
 --------------------------------------------------------------------------------
 
-## 1. Fundamentos de Arquiteturas Paralelas
-
-O paralelismo em computação é explorado em diferentes níveis de granulosidade, dependendo da intervenção necessária do hardware, do compilador ou do programador:
-
-- **Nível de Instrução (Granulosidade Fina):** Explorada por processadores _pipelined_, superescalares ou VLIW. É transparente ao usuário e gerida pelo hardware ou compilador.
-- **Nível de Thread (Granulosidade Média):** Encontrado em arquiteturas multithreading, multicore e aceleradores. Requer intervenção do programador ou compilador para criar e coordenar múltiplas threads.
-- **Nível de Processo (Granulosidade Grossa):** Utilizado em multiprocessadores e multicomputadores, exigindo bibliotecas específicas (como MPI) para coordenação explícita.
+# 2. Conceitos Teóricos Fundamentais
 
 ### Classificação de Flynn
 
-A taxonomia de Flynn organiza os computadores com base no fluxo de instruções e dados:
+Proposta em 1966, organiza os computadores baseando-se no fluxo de instruções e de dados:
 
-1. **SISD (Single Instruction, Single Data):** Processadores convencionais que executam um fluxo por vez.
-2. **SIMD (Single Instruction, Multiple Data):** Uma instrução opera sobre diversos dados. Exemplos incluem processadores vetoriais (Cray, instruções AVX) e arquiteturas sistólicas (TPUs do Google).
-3. **MIMD (Multiple Instruction, Multiple Data):** Múltiplos fluxos de instruções operam sobre múltiplos dados. Subdivide-se em:
-    - **Memória Compartilhada:** Todos os processadores acessam um espaço global. Exemplos: arquiteturas **UMA** (tempo de acesso uniforme) e **NUMA** (tempo de acesso não uniforme, comum em servidores com vários CPUs Xeon ou EPYC).
-    - **Memória Distribuída:** Cada nó possui sua memória local. A comunicação ocorre por troca de mensagens (ex: clusters utilizando MPI).
+| Categoria | Descrição                              | Exemplo                                                 |
+| --------- | -------------------------------------- | ------------------------------------------------------- |
+| **SISD**  | Uma instrução, um dado.                | Processadores convencionais.                            |
+| **SIMD**  | Uma instrução, múltiplos dados.        | Processadores vetoriais, GPUs, arquiteturas sistólicas. |
+| **MIMD**  | Múltiplas instruções, múltiplos dados. | Multiprocessadores e Clusters.                          |
 
-### Quiz 1: Arquiteturas Paralelas
+### Organização de Memória (MIMD)
 
-1. **O que caracteriza o paralelismo de nível de instrução?**
-2. **Qual a diferença fundamental entre arquiteturas UMA e NUMA?**
-3. **Como funciona uma arquitetura sistólica?**
-4. **O que define a categoria SIMD na classificação de Flynn?**
-5. **Quais são as vantagens e desvantagens de sistemas MIMD com memória distribuída?**
-6. **Qual o papel do framework OpenMP em arquiteturas de memória compartilhada?**
-7. **O que são instruções vetoriais e onde são encontradas modernamente?**
-8. **Como a coerência de cache é mantida em sistemas multiprocessadores?**
-9. **Por que a escalabilidade é um desafio em sistemas UMA com barramento único?**
-10. **O que caracteriza um cluster de multicomputadores?**
+- **Memória Compartilhada:** Todos os processadores acessam um espaço de endereçamento global.
+    - **UMA (Uniform Memory Access):** Tempo de acesso igual para todos os núcleos.
+    - **NUMA (Non-Uniform Memory Access):** Memória dividida em blocos locais; acesso à memória local é mais rápido que à remota.
+- **Memória Distribuída:** Cada nó possui sua própria memória local. A comunicação ocorre exclusivamente por **troca de mensagens**.
 
-#### Chave de Respostas - Quiz 1
+### O Ciclo de Vida do Processo
 
-1. É um tipo de paralelismo de granulosidade fina encontrado em processadores com pipeline ou superescalares. Ele é executado de forma transparente ao usuário, sendo explorado diretamente pelo hardware ou pelo compilador.
-2. Na UMA, todos os processadores têm o mesmo tempo de acesso à memória global única. Na NUMA, a memória é dividida em blocos locais, onde o acesso à memória local de um nó é muito mais rápido que o acesso à memória remota de outros nós.
-3. É uma estrutura onde os dados são "bombeados" através de células de hardware interconectadas que realizam operações simples e repassam aos vizinhos. Esse fluxo contínuo, análogo ao sistema circulatório, é altamente eficiente para cálculos matriciais massivos em IA.
-4. Caracteriza-se por uma única instrução operando simultaneamente sobre múltiplos dados. É a base de processadores vetoriais e unidades funcionais que executam operações em massa sobre vetores ou matrizes.
-5. As vantagens incluem alta escalabilidade e facilidade para construir sistemas massivamente paralelos. As desvantagens são a complexidade de programação, a necessidade de troca explícita de mensagens (MPI) e o risco de deadlocks.
-6. O OpenMP atua como o framework básico para explorar o paralelismo em threads, facilitando a coordenação via variáveis em memória compartilhada. Ele permite extrair paralelismo de laços e gerenciar a sincronização com operações atômicas.
-7. São instruções que operam sobre conjuntos lineares de valores, como vetores de N elementos, em uma única iteração. Processadores modernos da Intel (AVX-512) e AMD (AVX2) as utilizam para otimizar cálculos matemáticos.
-8. É mantida através de algoritmos implementados em hardware, como a técnica de _snooping_. Esses mecanismos garantem que os dados nas caches locais dos diversos núcleos permaneçam consistentes entre si.
-9. Devido à contenção no barramento; conforme se adicionam processadores, o tráfego aumenta até que o barramento se torne um gargalo. Além disso, o comprimento físico limitado do barramento restringe o número de dispositivos que podem ser conectados.
-10. Caracterizam-se por diversos nós independentes, onde cada um possui seu próprio processador e memória local. Não existe memória global, exigindo que a comunicação entre os nós ocorra obrigatoriamente por redes de alta velocidade e troca de mensagens.
+Um processo é uma entidade dinâmica que possui:
+
+- **Espaço de Endereçamento:** Código (.text), dados estáticos (.data), dados sem valor inicial (.bss), heap e pilha (stack).
+- **PCB (Bloco de Controle de Processo):** Estrutura de dados do SO que armazena o PID, estado, registradores e privilégios.
 
 --------------------------------------------------------------------------------
 
-## 2. Aceleradores e GPUs
+# 3. Implementação e Controle de Processos
 
-Aceleradores são dispositivos de hardware especializados (GPUs, FPGAs, Manycores) que executam trechos intensivos de código (**kernels**) para obter alto desempenho com eficiência energética.
+Nos sistemas baseados em POSIX, a criação de novos fluxos de execução de processos baseia-se no binômio `fork()` e `exec()`.
 
-### GPUs Modernas: Comparativo de Arquiteturas
+### Mecanismos de Criação
 
-As GPUs utilizam um conjunto massivo de multiprocessadores de fluxo para processamento paralelo.
+- `**fork()**`**:** Cria uma cópia exata do processo pai. O filho herda variáveis e descritores de arquivos, mas possui seu próprio espaço de endereçamento.
+- `**exec()**`**:** Substitui o código e o espaço de endereço do processo atual por um novo programa. Não cria um novo PID, apenas "reveste" o processo existente com outro código.
 
-|   |   |   |
-|---|---|---|
-|Característica|NVIDIA Hopper (H100)|AMD Instinct (MI300X)|
-|**Arquitetura Base**|Hopper|CDNA 3 (baseada em chiplets)|
-|**Núcleos de Cálculo**|128 núcleos CUDA FP32 por SM|Oito Accelerator Complex Dies (XCDs)|
-|**Escalonamento**|Grupos de 32 threads (**warps**)|Unidades de computação em paralelo|
-|**Memória Global**|Até 80 GB (HBM3)|192 GB HBM3|
-|**Largura de Banda**|2.000 a 3.000 GB/s|Até 5,3 TB/s|
-|**Cache L2**|50 MB (ponto de unificação)|256 MB (Last Level Cache)|
-|**Software**|CUDA / OpenACC|ROCm / HIP|
+#### Exemplo Funcional em C (`fork` e `execl`)
 
-### Desafios de Desempenho em Aceleradores
+O código abaixo demonstra a criação de um processo filho que troca sua imagem de execução.
 
-A movimentação de dados entre o hospedeiro (CPU) e o acelerador é um gargalo crítico, pois ocorre via barramentos (como PCI Express) que são mais lentos que a memória interna do dispositivo. Estratégias como a **Memória Unificada** tentam simplificar a programação, mas o gerenciamento eficiente da transferência de dados continua essencial.
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h> /* Necessário para a função wait() */
 
-### Quiz 2: Aceleradores e GPUs
+int main () {
+    /* fork() retorna 0 para o processo filho e o PID do filho para o pai */
+    if (fork() == 0) {  
+        /* Trecho executado apenas pelo FILHO */
+        printf("Alô do processo filho %d!\n", getpid());
+        
+        /* execl substitui o programa atual pelo executável "./teste" */
+        execl("./teste", "teste", (char *)0); 
+        
+        /* Se execl funcionar, esta linha nunca será alcançada */
+    } else {
+        /* Trecho executado apenas pelo PAI */
+        printf("Alô do processo pai %d!\n", getpid());
+        
+        /* O pai aguarda o término do filho para evitar processos zumbis */
+        wait(NULL); 
+    }
+    return 0;
+}
+```
 
-1. **O que são "kernels" no contexto de aceleradores?**
-2. **Qual a função do escalonador de warp na arquitetura Hopper?**
-3. **Como a tecnologia HBM difere das memórias GDDR tradicionais?**
-4. **O que é um processo de "offloading"?**
-5. **Como as FPGAs podem ser utilizadas para acelerar aplicações específicas?**
-6. **Qual a importância da cache L2 em uma GPU como a NVIDIA H100?**
-7. **O que são instruções "shuffle" em GPUs?**
-8. **Como o framework HIP da AMD auxilia desenvolvedores que usam CUDA?**
-9. **Por que a movimentação de dados é considerada um desafio em aceleradores?**
-10. **O que caracteriza a arquitetura de chiplets da AMD MI300X?**
+**Análise de Execução:**
 
-#### Chave de Respostas - Quiz 2
-
-1. Kernels são trechos de código computacionalmente intensivos e com alto potencial de paralelismo que são enviados para execução no acelerador. Eles operam sobre dados transferidos para a memória do dispositivo.
-2. O escalonador dispara threads em grupos de 32, chamados de warps. Na arquitetura Hopper, cada SM possui quatro desses escalonadores, permitindo a execução concorrente de múltiplos grupos.
-3. A HBM (High Bandwidth Memory) é empilhada verticalmente em 3D e conectada diretamente ao processador. Isso permite uma largura de banda e densidade muito superiores às memórias GDDR convencionais.
-4. É o ato de transferir a execução de partes específicas de um programa do processador principal (hospedeiro) para um acelerador externo. Frameworks como OpenMP offloading automatizam essa gestão de código e dados.
-5. FPGAs são dispositivos programáveis por software que podem ser configurados para implementar arquiteturas sistólicas ou circuitos lógicos personalizados. Elas são ideais para acelerar criptografia, processamento de sinais e simulações científicas.
-6. A cache L2 de 50MB atua como o ponto primário de unificação de dados entre os diversos SMs da GPU. Ela serve operações de carga e armazenamento, provendo compartilhamento de dados eficiente e de alta velocidade.
-7. São instruções otimizadas para a troca de dados entre threads dentro de um mesmo warp. Elas melhoram significativamente o desempenho de algoritmos como a Transformada de Fourier (FFT).
-8. O HIP é uma API que facilita a portabilidade, permitindo que códigos escritos originalmente para a plataforma CUDA da NVIDIA sejam convertidos e executados em GPUs AMD. Isso oferece flexibilidade e transparência aos desenvolvedores.
-9. Porque o barramento que conecta a CPU ao acelerador (como o PCIe) possui largura de banda muito inferior à das memórias internas dos dispositivos. Isso torna a transferência de dados um gargalo que pode anular o ganho de velocidade do processamento paralelo.
-10. A GPU não é uma pastilha monolítica, mas sim composta por vários dies (XCDs e IODs) interconectados pela tecnologia Infinity Fabric. Essa modularidade permite maior eficiência no gerenciamento de memória e escalonamento de núcleos.
+1. O `fork()` duplica o processo. Agora existem dois fluxos independentes.
+2. Na memória, o filho recebe uma cópia do estado do pai.
+3. O filho executa `execl`, limpando seu espaço de endereçamento original e carregando o programa "teste".
+4. O pai entra em `wait()`, suspendendo sua execução até que o filho envie seu status de término.
 
 --------------------------------------------------------------------------------
 
-## 3. Ciclo de Vida do Software: Da Compilação ao Processo
+# 4. Escalonamento: O Coração da Concorrência
 
-A transformação de um código de alto nível em algo executável pelo hardware segue um fluxo rigoroso:
+O escalonador decide qual processo ou thread utiliza o processador.
 
-1. **Compilador:** Traduz a linguagem de alto nível para **linguagem de montagem** (_assembly_), específica da arquitetura (ex: x86).
-2. **Montador (**_**Assembler**_**):** Converte o _assembly_ em código de máquina, gerando o **programa objeto**.
-3. **Ligador (**_**Linker**_**):** Une o programa objeto a bibliotecas (estáticas ou dinâmicas) para criar o **programa executável**.
+### Objetivos do Escalonamento
 
-### O Formato ELF (_Executable and Linking Format_)
+- **Throughput (Vazão):** Maximizar tarefas por unidade de tempo.
+- **Turnaround:** Minimizar o tempo total (espera + execução).
+- **Justiça:** Garantir que todos os processos recebam tempo de CPU.
 
-Padrão em sistemas Linux, o arquivo ELF contém cabeçalhos e seções essenciais:
+### Algoritmos Comuns
 
-- `.text`: Instruções do programa (apenas leitura).
-- `.rodata`: Dados somente de leitura (constantes).
-- `.data`: Dados estáticos com valores iniciais (leitura/escrita).
-- `.bss`: Dados estáticos sem valor inicial (zerados na carga).
-- `.symtab`: Tabela de símbolos para depuração.
-
-### Layout de Memória do Processo
-
-Ao ser carregado, o processo organiza sua memória virtual:
-
-- **Pilha (**_**Stack**_**):** Armazena variáveis locais e parâmetros de funções; cresce do final para o início da memória.
-- **Heap:** Espaço para alocação dinâmica (via `malloc()`); cresce do início para o fim.
-
-### Quiz 3: Compilação e Formato ELF
-
-1. **Qual a diferença entre bibliotecas estáticas e dinâmicas?**
-2. **O que é o "programa objeto"?**
-3. **Quais informações são encontradas no cabeçalho ELF?**
-4. **Para que serve a seção** `**.bss**` **em um executável?**
-5. **Como a pilha (**_**stack**_**) e a** _**heap**_ **se comportam na memória?**
-6. **Qual o papel do "carregador" (**_**loader**_**)?**
-7. **O que acontece se o carregador não encontrar uma referência de biblioteca dinâmica?**
-8. **O que diferencia a linguagem de montagem da linguagem de máquina?**
-9. **Por que o compilador realiza a tradução em diversas etapas?**
-10. **O que é o endereço de entrada de um programa?**
-
-#### Chave de Respostas - Quiz 3
-
-1. Bibliotecas estáticas são integradas permanentemente ao executável pelo ligador, gerando arquivos maiores. Bibliotecas dinâmicas são carregadas na memória apenas uma vez e compartilhadas por vários programas, economizando espaço.
-2. É o arquivo em linguagem de máquina gerado pelo montador a partir do código _assembly_. Ele contém o código binário, mas ainda carece da ligação com as rotinas das bibliotecas para ser executável.
-3. Contém informações gerais como o tipo do arquivo (executável ou objeto), a arquitetura do processador, o endereço de entrada e os deslocamentos para as tabelas de cabeçalho de programa e seções.
-4. Ela armazena dados estáticos que não possuem valor inicial definido. Durante a carga do programa, o sistema operacional reserva o espaço necessário e geralmente preenche esses endereços com zeros.
-5. Ambas crescem dinamicamente durante a execução, mas em sentidos opostos. A _heap_ (alocação dinâmica) cresce do início para o fim, enquanto a pilha (variáveis locais e retornos) cresce do final da memória para o início.
-6. O carregador é responsável por colocar o programa executável na memória principal. Ele verifica referências a bibliotecas dinâmicas, realiza as ligações necessárias e prepara o ambiente para o processador iniciar a execução.
-7. Se uma referência externa não puder ser resolvida no momento da carga, o carregador emite uma mensagem de erro e cancela a execução do programa antes que ele inicie.
-8. A linguagem de montagem usa mnemônicos legíveis por humanos para representar as instruções. A linguagem de máquina é o conjunto puramente binário de instruções que o processador entende e executa diretamente.
-9. Para garantir eficiência na tradução e facilitar a adaptação das ferramentas a diferentes arquiteturas de processadores. Isso permite que partes do compilador sejam reaproveitadas mudando apenas o gerador de código final.
-10. É o endereço de memória onde reside a primeira instrução que o processador deve executar ao iniciar o programa. Essa informação é especificada no cabeçalho do arquivo ELF.
+1. **First-Come First-Served (FCFS):** Ordem de chegada (simples, mas pode gerar filas longas).
+2. **Round Robin (RR):** Cada processo usa um _quantum_ (fatia de tempo) e volta para o fim da fila. Essencial para sistemas interativos.
+3. **Shortest Process Next (SPN):** Prioriza processos curtos (minimiza espera média, mas pode causar _starvation_ de processos longos).
+4. **Feedback:** Múltiplas filas com diferentes prioridades. Processos que usam muita CPU perdem prioridade; processos de E/S ganham.
 
 --------------------------------------------------------------------------------
 
-## 4. Gerenciamento de Processos e Escalonamento
+# 5. Threads: Fluxos de Execução Leves
 
-Um **processo** é uma entidade dinâmica composta pelo código executável, dados, recursos do sistema e seu estado de execução.
+Threads são fluxos que operam **dentro do mesmo processo**, compartilhando o espaço de memória.
 
-### Bloco de Controle de Processo (PCB)
+### Por que usar Threads em vez de Processos?
 
-O PCB é o "descritor" do processo no kernel, contendo:
+- **Troca de contexto mais rápida:** Menos informações para salvar/restaurar.
+- **Comunicação facilitada:** Podem ler e escrever nas mesmas variáveis globais (sem necessidade de mecanismos complexos do SO).
 
-- PID (Identificador Único).
-- Estado (Novo, Pronto, Execução, Bloqueado, Saída).
-- Contexto (Registradores, Contador de Programa, Ponteiro de Pilha).
-- Privilégios e informações contábeis.
+### Modelos de Gerenciamento
 
-### Criação: `fork()` vs `exec()`
-
-- `**fork()**`**:** Cria um novo processo que é uma cópia exata do pai. O filho recebe um novo PID.
-- `**exec()**`**:** Substitui o conteúdo (código e dados) do processo atual por um novo programa. Não cria um novo processo, mas altera sua identidade.
-- **Processo Zumbi:** Um processo que terminou a execução, mas permanece na tabela de processos porque o pai ainda não coletou seu _status_ de término via `wait()`.
-
-### Escalonamento de Curto Prazo (Algoritmos)
-
-O escalonador decide qual processo na fila de prontos utilizará o CPU:
-
-- **FCFS (First-Come, First-Served):** Ordem de chegada; simples, mas pode causar esperas longas.
-- **Round Robin:** Cada processo recebe um _quantum_ de tempo; excelente para sistemas interativos.
-- **Shortest Process Next (SPN):** Favorece processos curtos para minimizar o tempo médio de espera.
-- **Feedback:** Utiliza múltiplas filas com prioridades que se ajustam conforme o comportamento do processo (CPU-bound vs. I/O-bound).
-
-### Quiz 4: Processos e Escalonamento
-
-1. **O que é uma "troca de contexto"?**
-2. **Quais são os cinco estados básicos de um processo?**
-3. **O que acontece no estado "Pronto Suspenso"?**
-4. **Qual a diferença entre escalonamento preemptivo e não-preemptivo?**
-5. **O que é o "quantum" em um algoritmo Round Robin?**
-6. **Quais eventos podem causar o término forçado de um processo?**
-7. **O que caracteriza um processo "zumbi"?**
-8. **Como o algoritmo "Highest Response Ratio Next" (HRRN) evita a inanição?**
-9. **Qual a função do comando** `**wait()**` **para um processo pai?**
-10. **Por que o sistema operacional precisa manter uma tabela de processos?**
-
-#### Chave de Respostas - Quiz 4
-
-1. É o procedimento onde o processador salva o estado do processo atual no seu PCB e carrega o estado de um novo processo a partir do PCB deste. Isso permite alternar a execução entre múltiplos processos.
-2. Novo (criado), Pronto (aguardando CPU), Execução (em processamento), Bloqueado (aguardando E/S ou evento) e Encerrado (finalizado).
-3. Ocorre quando a memória principal está cheia e um processo no estado "pronto" é movido para a memória secundária (_disk_). Ele aguarda que haja espaço na memória principal para voltar ao estado "pronto" e competir pelo CPU.
-4. No não-preemptivo, o processo detém o CPU até terminar ou bloquear. No preemptivo, o sistema operacional pode interromper o processo (por fim de tempo ou chegada de prioridade maior) para dar lugar a outro.
-5. É a fatia de tempo pré-determinada que cada processo pode utilizar o processador continuamente. Se o tempo expirar antes do processo terminar, ele é recolocado no fim da fila de prontos.
-6. Erros de execução (divisão por zero, violação de memória), interrupção manual pelo usuário (comando `kill`), consumo excessivo de recursos ou o término do processo pai.
-7. É um processo que já finalizou sua execução, mas cujas informações (PID e status) permanecem na tabela do sistema porque o pai ainda não as coletou. Se acumulados, podem esgotar os recursos de identificação do sistema.
-8. Ele calcula uma razão que considera tanto o tempo de execução esperado quanto o tempo de espera na fila. Como a prioridade aumenta com o tempo de espera, processos longos eventualmente conseguem ser executados.
-9. Serve para que o processo pai aguarde a finalização de seus filhos e colete o código de status de término. Essa ação permite que o kernel remova as entradas dos filhos da tabela de processos, evitando zumbis.
-10. Para gerenciar e armazenar os PCBs de todos os processos ativos. Essa estrutura permite ao kernel monitorar o estado, os recursos alocados, as prioridades e as informações necessárias para o escalonamento e troca de contexto.
+- **Threads de Usuário:** Gerenciadas por bibliotecas. O SO não as "vê". Se uma bloqueia por E/S, o processo inteiro para.
+- **Threads de Kernel:** O SO conhece cada thread. Se uma bloqueia, o escalonador pode rodar outra do mesmo processo.
+- **Modelos de Multithreading:**
+    - **1:1:** Uma thread de usuário para uma de kernel (aproveita múltiplos núcleos).
+    - **N:1:** Várias de usuário em uma de kernel (rápida, mas sem paralelismo real).
+    - **M:N:** Híbrido, combinando flexibilidade e desempenho.
 
 --------------------------------------------------------------------------------
 
-## 5. Threads e Concorrência
+# 6. Dicas para Exercícios e Provas
 
-Threads são fluxos de execução independentes dentro de um mesmo processo. Elas compartilham o espaço de endereçamento (memória), arquivos abertos e variáveis globais, o que torna a comunicação muito mais rápida do que entre processos.
+1. **Identificando Regiões Críticas:** Sempre que duas ou mais threads/processos acessarem a mesma variável para escrita, há uma região crítica.
+2. **Detectando Condição de Corrida:** Se o resultado final depende da ordem de execução das threads, o código está incorreto.
+3. **Processos Zumbi:** Ocorrem quando o pai não chama `wait()`. O filho terminou, mas sua entrada permanece na tabela de processos.
+4. **Starvation vs. Deadlock:** _Starvation_ (Inanição) é quando um processo nunca consegue rodar por baixa prioridade. _Deadlock_ é um bloqueio mútuo onde ninguém avança.
 
-### Threads de Usuário vs. Kernel
+--------------------------------------------------------------------------------
 
-- **Usuário:** Gerenciadas por bibliotecas. São rápidas (sem chamadas ao kernel), mas se uma thread bloquear em E/S, todo o processo bloqueia.
-- **Kernel:** O sistema operacional conhece cada thread. Se uma bloquear, outras do mesmo processo continuam executando. São mais lentas para criar e gerenciar devido às trocas de modo do processador.
+# 7. Resumo Final (Checklist de Estudos)
 
-### Modelos de Multithreading
+### Mapa Mental Textual
 
-- **N:1:** Várias threads de usuário mapeadas em uma de kernel. Troca rápida, mas sem ganho em multinúcleos.
-- **1:1:** Cada thread de usuário tem uma correspondente no kernel. Aproveita todos os núcleos, mas a gestão é mais pesada.
-- **M:N:** Mapeia M threads de usuário em N threads de kernel. Combina rapidez de troca com aproveitamento de hardware.
+- **Arquitetura:** Flynn (SISD, SIMD, MIMD) -> Memória (UMA, NUMA, Distribuída).
+- **Processos:** Programa estático vs. Processo dinâmico -> PCB -> Estados (Novo, Pronto, Execução, Bloqueado, Saída).
+- **Threads:** Contexto leve -> Compartilhamento de memória -> Modelos (Usuário vs. Kernel).
+- **Escalonamento:** Preemptivo vs. Não-preemptivo -> Algoritmos (RR, FCFS, SPN, Feedback).
 
-### Quiz 5: Threads
+### Quiz de Autoavaliação
 
-1. **O que as threads compartilham dentro de um processo?**
-2. **Quais são os elementos exclusivos de cada thread?**
-3. **Por que a troca de contexto entre threads é mais rápida que entre processos?**
-4. **Qual a principal limitação das threads de usuário puras?**
-5. **O que é o fenômeno da "inanição" (**_**starvation**_**) no escalonamento de threads?**
-6. **Como a técnica de "envelhecimento" (**_**aging**_**) resolve a inanição?**
-7. **O que acontece com o processo se a thread principal termina?**
-8. **Quais as vantagens das threads de kernel para aplicações de E/S?**
-9. **Descreva o modelo de multithreading M:N.**
-10. **O que é um TCB (**_**Thread Control Block**_**)?**
+1. Qual a principal diferença entre arquiteturas UMA e NUMA?
+2. O que acontece com o espaço de endereçamento de um processo após a chamada `exec()`?
+3. Por que o uso de threads de usuário pode ser problemático em operações de Entrada e Saída (E/S)?
+4. Explique o conceito de "envelhecimento" (_aging_) no escalonamento por prioridade.
 
-#### Chave de Respostas - Quiz 5
+### Glossário Técnico
 
-1. Compartilham o espaço de endereçamento de memória, variáveis globais, os arquivos abertos e outros recursos globais que compõem o contexto do processo.
-2. Cada thread possui seu próprio identificador único (TID), estado da pilha de execução, apontador de instrução (PC) e valores dos registradores de uso geral.
-3. Porque elas compartilham a mesma memória; não é necessário atualizar tabelas de páginas ou limpar caches de memória virtual, apenas salvar e restaurar registradores e ponteiros de pilha.
-4. Se uma thread de usuário realizar uma operação bloqueante (como leitura de disco), o kernel, que só vê o processo como um todo, bloqueia o processo inteiro, impedindo as outras threads de rodar.
-5. Ocorre quando threads de baixa prioridade nunca conseguem tempo de processador porque novas threads com prioridades mais altas entram continuamente no sistema, mantendo a fila de prontos sempre ocupada.
-6. Ela aumenta gradualmente o valor da prioridade de uma thread conforme ela permanece aguardando na fila. Com o tempo, sua prioridade torna-se alta o suficiente para que ela seja selecionada pelo escalonador.
-7. Dependendo da implementação da biblioteca de threads, o processo inteiro e todas as suas threads associadas podem ser encerrados automaticamente quando a thread principal finaliza.
-8. Como o kernel conhece cada thread individualmente, ele pode colocar apenas a thread que solicitou a E/S em estado bloqueado, permitindo que o escalonador execute outras threads do mesmo processo.
-9. É um esquema híbrido onde um número arbitrário de threads de usuário é mapeado em um número arbitrário de threads de kernel. Isso une trocas de contexto rápidas com a capacidade de usar múltiplos núcleos físicos.
-10. É o bloco de controle de thread, uma estrutura de dados no kernel (para threads de kernel) que armazena informações específicas da thread, como seu estado, prioridade e contexto de registradores.
-
+- **Context Switch (Troca de Contexto):** Salvar o estado do processo atual no PCB e carregar o estado do próximo.
+- **Quantum:** Fatia de tempo máxima que um processo pode ocupar a CPU no Round Robin.
+- **Warp:** Grupo de 32 threads disparadas simultaneamente em GPUs NVIDIA.
+- **Affinity (Afinidade):** Tendência de escalonar uma thread no mesmo núcleo para aproveitar o cache.
 --------------------------------------------------------------------------------
 
 ## Glossário de Termos
