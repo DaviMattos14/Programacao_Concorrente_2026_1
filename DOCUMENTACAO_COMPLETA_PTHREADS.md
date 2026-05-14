@@ -8,25 +8,27 @@
 
 ## Índice
 
-1. [Fundamentos](#fundamentos)
-2. [Processos](#processos)
-3. [Threads e pthread_create](#threads-e-pthread_create)
-4. [pthread_join](#pthread_join)
-5. [pthread_exit](#pthread_exit)
-6. [Seção Crítica e Mutex](#seção-crítica-e-mutex)
-7. [Semáforos](#semáforos)
-8. [Variáveis de Condição](#variáveis-de-condição)
-9. [Barreiras](#barreiras)
-10. [Condição de Corrida](#condição-de-corrida)
-11. [Deadlock](#deadlock)
-12. [Starvation (Inanição)](#starvation-inanição)
-13. [Violação de Atomicidade](#violação-de-atomicidade)
-14. [Escalonamento](#escalonamento)
-15. [Paralelismo de Dados](#paralelismo-de-dados)
-16. [Paralelismo de Tarefas](#paralelismo-de-tarefas)
-17. [Problema: Produtor-Consumidor](#problema-produtor-consumidor)
-18. [Problema: Leitores-Escritores](#problema-leitores-escritores)
-19. [Problema: Jantar dos Filósofos](#problema-jantar-dos-filósofos)
+1. [Fundamentos](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#fundamentos)
+2. [Processos](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#processos)
+3. [Threads e pthread_create](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#threads)
+4. [pthread_join](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#pthread_join)
+5. [pthread_exit](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#pthread_exit)
+6. [Seção Crítica e Mutex](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#mutex)
+7. [Semáforos](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#sem%C3%A1foros)
+8. [Variáveis de Condição](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#vari%C3%A1veis-de-condi%C3%A7%C3%A3o)
+9. [Barreiras](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#barreiras)
+10. [Condição de Corrida](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#condi%C3%A7%C3%A3o-de-corrida)
+11. [Deadlock](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#deadlock)
+12. [Starvation (Inanição)](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#starvation-inani%C3%A7%C3%A3o)
+13. [Violação de Atomicidade](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#viola%C3%A7%C3%A3o-de-atomicidade)
+14. [Escalonamento](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#escalonamento)
+15. [Paralelismo de Dados](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#paralelismo-de-dados)
+16. [Paralelismo de Tarefas](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#paralelismo-de-tarefas)
+17. [Problema: Produtor-Consumidor](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#produtor-consumidor)
+18. [Problema: Leitores-Escritores](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#leitores-escritores)
+19. [Problema: Jantar dos Filósofos](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#jantar-dos-fil%C3%B3sofos)
+20. [Balanceamento de Carga](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#balanceamento-de-carga)
+21. [Saco de Tarefas (Bag of Tasks)](https://claude.ai/chat/19caf879-d10c-49ef-90aa-c74f5f8f3997#saco-de-tarefas-bag-of-tasks)
 
 ---
 
@@ -1582,12 +1584,9 @@ Evitar "espera ocupada" (busy waiting): em vez de testar repetidamente uma condi
 ### Sintaxe
 
 ```c
-pthread_mutex_t mutex;
-pthread_cond_t cond;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
-int pthread_mutex_init(pthread_mutex_t *mutex,const pthread_mutexattr_t *attr);
-int pthread_cond_init(pthread_cond_t *cond,const pthread_condattr_t *attr);
-int pthread_cond_wait(pthread_cond_t *cond,pthread_mutex_t *mutex);
+int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
 int pthread_cond_signal(pthread_cond_t *cond);
 int pthread_cond_broadcast(pthread_cond_t *cond);
 ```
@@ -3235,7 +3234,783 @@ Filósofo 2: COMENDO
 
 ---
 
-## Resumo Rápido (Referência)
+# Balanceamento de Carga
+
+## Definição
+
+**Balanceamento de carga** (_load balancing_) é o conjunto de estratégias que distribui o trabalho entre threads (ou processos) de forma que todas permaneçam ocupadas durante o maior tempo possível, evitando que algumas fiquem ociosas enquanto outras acumulam trabalho.
+
+O problema central é: **como dividir N unidades de trabalho entre P threads de modo que o tempo total de execução seja minimizado?**
+
+## Objetivo
+
+- Maximizar a utilização de todos os núcleos disponíveis.
+- Eliminar gargalos causados por threads desproporcionalmente sobrecarregadas.
+- Reduzir o tempo total de execução (_makespan_) de uma aplicação paralela.
+- Adaptar-se a variações no custo de cada tarefa (cargas heterogêneas).
+
+## Funcionamento
+
+### Tipos de balanceamento
+
+|Tipo|Quando a divisão ocorre|Custo de overhead|Adaptabilidade|
+|---|---|---|---|
+|**Estático**|Antes da execução|Mínimo|Nenhuma|
+|**Dinâmico**|Durante a execução|Moderado|Alta|
+|**Work-stealing**|Quando thread fica ociosa|Baixo (lazy)|Muito alta|
+
+### Balanceamento estático
+
+O trabalho é dividido igualmente no início. Ideal quando as tarefas têm custo **uniforme e previsível** (ex.: somar um vetor de N elementos com N/P elementos por thread).
+
+```
+Vetor: [1..1000000], P=4 threads
+T1: [0,      250000)
+T2: [250000, 500000)
+T3: [500000, 750000)
+T4: [750000, 1000000)
+```
+
+**Problema:** Se os custos forem heterogêneos (ex.: processar pixels com intensidades diferentes), algumas threads terminam cedo e ficam ociosas.
+
+### Balanceamento dinâmico
+
+Threads pegam novas fatias de trabalho de uma fila compartilhada à medida que ficam ociosas. Threads rápidas ou com tarefas leves automaticamente compensam fazendo mais trabalho.
+
+```
+Fila compartilhada: [T1][T2][T3]...[T100]
+Thread A: pega T1 → termina → pega T4 → ...
+Thread B: pega T2 → termina → pega T5 → ...
+Thread C: pega T3 (pesada) → ainda processando...
+Thread A: pega T6, T7, T8 → compensando!
+```
+
+### Work-stealing
+
+Cada thread tem sua própria fila de tarefas. Quando uma thread esgota sua fila, ela "rouba" tarefas da fila de outra thread sobrecarregada. Minimiza contenção no caso comum (sem roubo).
+
+### Compartilhamento de recursos e sincronização
+
+- **Estático:** Sem sincronização durante execução (fila predefinida por índice).
+- **Dinâmico:** Mutex ou semáforo protege o contador/fila compartilhada.
+- **Work-stealing:** Deque por thread com acesso duplo (dono pela frente, ladrão por trás); exige sincronização apenas no roubo.
+
+### Granularidade
+
+O tamanho de cada fatia de trabalho impacta diretamente o trade-off:
+
+- **Granularidade grossa:** Menos overhead de sincronização, mas pior balanceamento.
+- **Granularidade fina:** Melhor balanceamento, mas alto custo de lock por tarefa.
+- **Chunk adaptativo:** Começa com fatias grandes e reduz progressivamente (scheduling em loop).
+
+## Sintaxe
+
+```c
+/* Padrão de balanceamento dinâmico com contador atômico compartilhado */
+pthread_mutex_t mutex_fila = PTHREAD_MUTEX_INITIALIZER;
+int proximo_item = 0;   /* Índice da próxima tarefa disponível */
+int total_itens  = N;
+
+/* Cada thread executa este loop */
+while (1) {
+    pthread_mutex_lock(&mutex_fila);
+    int meu_item = proximo_item++;   /* Pega próxima tarefa */
+    pthread_mutex_unlock(&mutex_fila);
+
+    if (meu_item >= total_itens) break;   /* Sem mais trabalho */
+    processar(meu_item);
+}
+```
+
+## Parâmetros
+
+|Elemento|Papel|
+|---|---|
+|`proximo_item`|Índice global do próximo trabalho a ser retirado da fila|
+|`mutex_fila`|Protege a leitura e incremento atômico de `proximo_item`|
+|`total_itens`|Limite superior; thread para quando `meu_item >= total_itens`|
+|`chunk_size`|Número de itens retirados de uma vez para reduzir contenção|
+
+## Valor de Retorno
+
+As funções de mutex e pthread retornam 0 em sucesso. O valor de negócio aqui é o speedup obtido:
+
+```
+Speedup ideal    = P  (número de threads)
+Speedup real     = T_sequencial / T_paralelo
+Eficiência       = Speedup / P  (ideal = 1.0)
+```
+
+## Exemplo Completo
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
+
+/* ---------------------------------------------------------------
+ * Balanceamento de carga: comparação entre estático e dinâmico
+ * Cenário: processar N imagens com custos heterogêneos
+ * --------------------------------------------------------------- */
+
+#define N_IMAGENS   20    /* Total de tarefas */
+#define N_THREADS    4    /* Número de workers */
+#define CHUNK_SIZE   2    /* Fatias no balanceamento dinâmico */
+
+/* Custo simulado de cada imagem (ms) — propositalmente heterogêneo */
+int custo_ms[N_IMAGENS] = {
+    300, 10, 250, 20, 400, 15, 350, 30,
+    500, 10, 100, 25, 450, 12, 200, 40,
+    380, 18, 270, 22
+};
+
+/* --- Estruturas compartilhadas --- */
+pthread_mutex_t mutex_dyn = PTHREAD_MUTEX_INITIALIZER;
+int proximo_dyn = 0;   /* Próximo índice livre (dinâmico) */
+
+/* Tempo total consumido por cada thread (para análise de balanceamento) */
+long tempo_estatico[N_THREADS];
+long tempo_dinamico[N_THREADS];
+
+/* ---------------------------------------------------------------
+ * Utilitário: retorna tempo em milissegundos
+ * --------------------------------------------------------------- */
+long agora_ms(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec * 1000L + ts.tv_nsec / 1000000L;
+}
+
+/* ---------------------------------------------------------------
+ * Simula processamento de uma imagem
+ * --------------------------------------------------------------- */
+void processar_imagem(int id_img, int id_thread, const char *modo) {
+    usleep(custo_ms[id_img] * 1000); /* Simula custo real */
+    printf("[%s] Thread %d processou imagem %2d (custo: %3d ms)\n",
+           modo, id_thread, id_img, custo_ms[id_img]);
+}
+
+/* ---------------------------------------------------------------
+ * BALANCEAMENTO ESTÁTICO
+ * Cada thread processa um bloco fixo de N/P imagens
+ * --------------------------------------------------------------- */
+typedef struct {
+    int id;
+    int inicio;
+    int fim;
+} args_estatico_t;
+
+void *worker_estatico(void *arg) {
+    args_estatico_t *a = (args_estatico_t *)arg;
+    long t_inicio = agora_ms();
+
+    for (int i = a->inicio; i < a->fim; i++) {
+        processar_imagem(i, a->id, "ESTATICO");
+    }
+
+    tempo_estatico[a->id] = agora_ms() - t_inicio;
+    printf("[ESTATICO] Thread %d terminou em %ld ms\n",
+           a->id, tempo_estatico[a->id]);
+
+    free(a);
+    return NULL;
+}
+
+/* ---------------------------------------------------------------
+ * BALANCEAMENTO DINÂMICO
+ * Threads competem pelo próximo chunk disponível
+ * --------------------------------------------------------------- */
+typedef struct {
+    int id;
+} args_dinamico_t;
+
+void *worker_dinamico(void *arg) {
+    args_dinamico_t *a = (args_dinamico_t *)arg;
+    long t_inicio = agora_ms();
+
+    while (1) {
+        /* --- Seção crítica: pega próximo chunk --- */
+        pthread_mutex_lock(&mutex_dyn);
+        int meu_inicio = proximo_dyn;
+        proximo_dyn += CHUNK_SIZE;
+        pthread_mutex_unlock(&mutex_dyn);
+
+        /* Sem mais trabalho? */
+        if (meu_inicio >= N_IMAGENS) break;
+
+        /* Processa até CHUNK_SIZE imagens (ou até o fim) */
+        int meu_fim = meu_inicio + CHUNK_SIZE;
+        if (meu_fim > N_IMAGENS) meu_fim = N_IMAGENS;
+
+        for (int i = meu_inicio; i < meu_fim; i++) {
+            processar_imagem(i, a->id, "DINAMICO");
+        }
+    }
+
+    tempo_dinamico[a->id] = agora_ms() - t_inicio;
+    printf("[DINAMICO] Thread %d terminou em %ld ms\n",
+           a->id, tempo_dinamico[a->id]);
+
+    free(a);
+    return NULL;
+}
+
+/* ---------------------------------------------------------------
+ * Análise de balanceamento: calcula desvio entre threads
+ * --------------------------------------------------------------- */
+void analisar(const char *modo, long *tempos, int n) {
+    long soma = 0, maximo = 0, minimo = tempos[0];
+
+    for (int i = 0; i < n; i++) {
+        soma += tempos[i];
+        if (tempos[i] > maximo) maximo = tempos[i];
+        if (tempos[i] < minimo) minimo = tempos[i];
+    }
+
+    printf("\n[%s] Media: %ld ms | Max: %ld ms | Min: %ld ms | "
+           "Desequilibrio: %ld ms\n",
+           modo, soma / n, maximo, minimo, maximo - minimo);
+}
+
+/* ---------------------------------------------------------------
+ * main
+ * --------------------------------------------------------------- */
+int main(void) {
+    pthread_t threads[N_THREADS];
+
+    /* ===================== ESTÁTICO ===================== */
+    printf("=== BALANCEAMENTO ESTATICO ===\n");
+
+    int chunk = N_IMAGENS / N_THREADS;
+    for (int i = 0; i < N_THREADS; i++) {
+        args_estatico_t *a = malloc(sizeof(args_estatico_t));
+        a->id     = i;
+        a->inicio = i * chunk;
+        a->fim    = (i == N_THREADS - 1) ? N_IMAGENS : (i + 1) * chunk;
+        pthread_create(&threads[i], NULL, worker_estatico, a);
+    }
+    for (int i = 0; i < N_THREADS; i++) pthread_join(threads[i], NULL);
+
+    analisar("ESTATICO", tempo_estatico, N_THREADS);
+
+    /* ===================== DINÂMICO ===================== */
+    printf("\n=== BALANCEAMENTO DINAMICO (chunk=%d) ===\n", CHUNK_SIZE);
+    proximo_dyn = 0; /* Reinicia contador */
+
+    for (int i = 0; i < N_THREADS; i++) {
+        args_dinamico_t *a = malloc(sizeof(args_dinamico_t));
+        a->id = i;
+        pthread_create(&threads[i], NULL, worker_dinamico, a);
+    }
+    for (int i = 0; i < N_THREADS; i++) pthread_join(threads[i], NULL);
+
+    analisar("DINAMICO", tempo_dinamico, N_THREADS);
+
+    pthread_mutex_destroy(&mutex_dyn);
+    return 0;
+}
+```
+
+## Explicação do Código
+
+1. **`custo_ms[]`:** Array com custos propositalmente heterogêneos para evidenciar o problema do balanceamento estático com cargas irregulares.
+2. **`worker_estatico()`:** Recebe `inicio` e `fim` fixos; processa seu bloco sem nenhuma sincronização — overhead zero, mas threads rápidas ficam ociosas após terminar.
+3. **`worker_dinamico()`:** Loop infinito com lock mínimo: trava apenas para ler e incrementar `proximo_dyn`, depois processa o chunk inteiramente fora do lock. Isso mantém a seção crítica curtíssima.
+4. **`CHUNK_SIZE = 2`:** Cada thread pega 2 imagens por vez. Valor maior → menos contenção, pior balanceamento. Valor menor → melhor balanceamento, mais contenção.
+5. **`if (meu_inicio >= N_IMAGENS) break`:** Condição de parada verificada _após_ liberar o lock, evitando lock desnecessário.
+6. **`analisar()`:** Mede desequilíbrio como `max - min` entre threads; no estático esse valor é alto, no dinâmico tende a ser próximo de zero.
+7. **`agora_ms()`:** Usa `CLOCK_MONOTONIC` para medição precisa do tempo de execução de cada thread.
+
+## Saída Esperada
+
+```
+=== BALANCEAMENTO ESTATICO ===
+[ESTATICO] Thread 0 processou imagem  0 (custo: 300 ms)
+[ESTATICO] Thread 1 processou imagem  5 (custo:  15 ms)
+...
+[ESTATICO] Thread 1 terminou em  335 ms
+[ESTATICO] Thread 0 terminou em 1060 ms
+
+[ESTATICO] Media: 710 ms | Max: 1060 ms | Min: 335 ms | Desequilibrio: 725 ms
+
+=== BALANCEAMENTO DINAMICO (chunk=2) ===
+[DINAMICO] Thread 1 processou imagem  2 (custo: 250 ms)
+[DINAMICO] Thread 3 processou imagem  0 (custo: 300 ms)
+...
+[DINAMICO] Thread 2 terminou em  682 ms
+[DINAMICO] Thread 0 terminou em  701 ms
+
+[DINAMICO] Media: 690 ms | Max: 701 ms | Min: 672 ms | Desequilibrio:  29 ms
+```
+
+> O desequilíbrio cai de ~725 ms para ~29 ms com balanceamento dinâmico — todas as threads terminam aproximadamente no mesmo instante.
+
+## Possíveis Problemas
+
+- **Contenção excessiva no mutex dinâmico:** Se `CHUNK_SIZE = 1` e N é muito grande, o lock vira gargalo. Solução: aumentar chunk ou usar operações atômicas (`__atomic_fetch_add`).
+- **False sharing:** Threads escrevendo em posições de memória próximas (mesmo cache line) causam invalidações de cache constantes. Solução: padding entre arrays de resultado por thread.
+- **Overhead de criação de thread maior que o trabalho:** Para tarefas minúsculas, o custo de `pthread_create` supera o ganho. Use thread pools.
+- **Imbalance persistente no estático:** Com dados heterogêneos e distribuição estática, a thread mais lenta define o makespan total.
+- **Starvation de trabalho (work starvation):** Se uma thread trava em I/O e o trabalho estava estaticamente alocado a ela, outras threads ficam ociosas sem poder ajudar.
+
+## Boas Práticas
+
+1. **Meça antes de otimizar:** Use `clock_gettime` para identificar se há desequilíbrio real antes de adicionar complexidade de balanceamento dinâmico.
+2. **Ajuste `CHUNK_SIZE` empiricamente:** O valor ótimo depende do hardware, do custo médio das tarefas e do número de threads.
+    
+    ```c
+    /* Heurística de ponto de partida */int chunk_size = (N_ITENS / (N_THREADS * 4));if (chunk_size < 1) chunk_size = 1;
+    ```
+    
+3. **Minimize o tempo dentro do lock:** Retire tudo o que for possível para fora do mutex; proteja apenas a atualização do contador/fila.
+4. **Considere operações atômicas para contadores simples:**
+    
+    ```c
+    #include <stdatomic.h>atomic_int proximo = 0;int meu = atomic_fetch_add(&proximo, CHUNK_SIZE);/* Sem mutex! Mais rápido para contadores inteiros */
+    ```
+    
+5. **Evite false sharing com padding:**
+    
+    ```c
+    typedef struct {    long resultado;    char _pad[64 - sizeof(long)]; /* Preenche até 64 bytes (tamanho de cache line) */} resultado_t;resultado_t resultados[N_THREADS]; /* Cada thread em sua própria cache line */
+    ```
+    
+6. **Para trabalho verdadeiramente irregular, use o padrão Saco de Tarefas** (próxima seção).
+
+## Comparação com Execução Sequencial
+
+|Métrica|Sequencial|Estático (heterogêneo)|Dinâmico|
+|---|---|---|---|
+|Tempo total|T|T/P + desequilíbrio|≈ T/P|
+|Overhead de sincronização|0|0|Baixo (O(N/chunk))|
+|Adaptação a custos variáveis|N/A|Não|Sim|
+|Implementação|Trivial|Simples|Moderada|
+
+## Resumo Rápido
+
+```
+Balanceamento de Carga
+├── Estático:  divide N/P itens antes de começar → zero overhead, zero adaptação
+├── Dinâmico:  threads pegam chunks de fila compartilhada → adaptativo, leve contenção
+├── Work-stealing: fila por thread, roubo lazy → mínima contenção, máxima adaptação
+├── Chunk size: maior → menos lock, pior balanceamento; menor → melhor balanceamento, mais lock
+└── Métrica: desequilíbrio = max(tempo_thread) − min(tempo_thread) → idealmente ≈ 0
+```
+
+---
+
+# Saco de Tarefas (Bag of Tasks)
+
+## Definição
+
+**Saco de Tarefas** (_Bag of Tasks_ ou _Task Pool_) é um padrão arquitetural de programação paralela no qual todas as unidades de trabalho são colocadas em uma estrutura centralizada (o "saco"), e um conjunto fixo de threads _worker_ retira e executa tarefas dessa estrutura até que ela esteja vazia.
+
+É a realização mais completa do balanceamento dinâmico: o saco funciona ao mesmo tempo como fila de trabalho, mecanismo de balanceamento e ponto de sincronização.
+
+## Objetivo
+
+- Desacoplar totalmente a **geração de tarefas** da **execução de tarefas**.
+- Adaptar-se automaticamente a tarefas com custos completamente imprevisíveis.
+- Reutilizar threads (evitar o custo de criar/destruir threads para cada tarefa).
+- Simplificar o código paralelo: thread worker é genérica; a lógica fica nas tarefas.
+
+## Funcionamento
+
+### Comportamento na memória
+
+```
+┌─────────────────────────────────────────────┐
+│              SACO DE TAREFAS                │
+│  [tarefa_5][tarefa_3][tarefa_9][tarefa_1]   │  ← fila protegida por mutex
+└────────────────────┬────────────────────────┘
+                     │ retira tarefa
+         ┌───────────┼───────────┐
+         ▼           ▼           ▼
+    Worker T1    Worker T2    Worker T3
+    (executando) (executando) (aguardando)
+```
+
+### Ciclo de vida de uma tarefa
+
+1. **Produção:** Código externo (ou outra tarefa) insere trabalho no saco.
+2. **Retirada:** Thread worker acorda (via `pthread_cond_signal`), trava o mutex, retira uma tarefa, libera o mutex.
+3. **Execução:** Worker processa a tarefa inteiramente fora do lock.
+4. **Retorno (opcional):** Resultado é colocado em estrutura de coleta ou em nova tarefa no saco.
+5. **Encerramento:** Quando o saco está vazio e nenhuma nova tarefa será gerada, workers são sinalizados para terminar via flag `encerrado`.
+
+### Sincronização
+
+- **Mutex:** Protege a fila de tarefas contra acesso concorrente.
+- **Variável de condição:** Workers dormem enquanto o saco está vazio em vez de fazer _busy waiting_.
+- **Flag `encerrado`:** Sinaliza que não virão mais tarefas; workers devem drenar o saco e sair.
+
+### Possíveis riscos
+
+- **Deadlock:** Worker retira tarefa → tarefa insere nova tarefa → precisa de lock → lock já está com o worker. Solução: tarefa nunca adquire lock diretamente; usa função `enqueue` que gerencia o lock.
+- **Wakeup perdido:** `pthread_cond_signal` disparado antes do worker chamar `wait`. Solução: sempre usar `while` (não `if`) na condição de espera.
+- **Encerramento prematuro:** Flag `encerrado` ativada antes de todas as tarefas serem drenadas. Solução: ativar somente após confirmar que nenhuma tarefa pode ser gerada.
+
+## Sintaxe
+
+```c
+/* Estrutura do saco */
+typedef struct {
+    Tarefa   *fila[MAX_TAREFAS];
+    int       cabeca;
+    int       cauda;
+    int       count;
+    int       encerrado;         /* 1 = sem novas tarefas */
+    pthread_mutex_t mutex;
+    pthread_cond_t  nao_vazio;   /* Workers aguardam aqui */
+    pthread_cond_t  nao_cheio;   /* Produtores aguardam aqui */
+} Saco;
+
+/* API pública */
+void  saco_init   (Saco *s, int capacidade);
+void  saco_enqueue(Saco *s, Tarefa *t);   /* Insere tarefa */
+int   saco_dequeue(Saco *s, Tarefa **t);  /* Retira tarefa; retorna 0 se encerrado */
+void  saco_fechar  (Saco *s);             /* Sinaliza fim da produção */
+void  saco_destroy (Saco *s);
+```
+
+## Parâmetros
+
+|Parâmetro / Campo|Tipo|Significado|
+|---|---|---|
+|`fila[]`|Array de ponteiros|Armazena as tarefas pendentes|
+|`cabeca` / `cauda`|`int`|Índices da fila circular|
+|`count`|`int`|Número de tarefas atualmente no saco|
+|`encerrado`|`int` (flag)|Quando 1, workers esgotam o saco e saem|
+|`nao_vazio`|`pthread_cond_t`|Workers aguardam aqui quando `count == 0`|
+|`nao_cheio`|`pthread_cond_t`|Produtores aguardam aqui quando saco está cheio|
+
+## Valor de Retorno
+
+```c
+saco_dequeue(s, &t);
+/* Retorna: 1 → tarefa retirada com sucesso
+            0 → saco vazio E encerrado → worker deve sair */
+```
+
+## Exemplo Completo
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+/* ---------------------------------------------------------------
+ * Padrão Saco de Tarefas (Bag of Tasks)
+ * Cenário: processar arquivos com número e custo desconhecidos
+ * --------------------------------------------------------------- */
+
+#define MAX_TAREFAS  50
+#define N_WORKERS     3
+
+/* --- Definição de uma tarefa --- */
+typedef struct {
+    int  id;
+    int  custo_ms;    /* Simula custo de processamento */
+    char descricao[64];
+} Tarefa;
+
+/* --- O saco de tarefas --- */
+typedef struct {
+    Tarefa         *fila[MAX_TAREFAS];
+    int             cabeca;
+    int             cauda;
+    int             count;
+    int             encerrado;
+    pthread_mutex_t mutex;
+    pthread_cond_t  nao_vazio;
+    pthread_cond_t  nao_cheio;
+} Saco;
+
+/* ---------------------------------------------------------------
+ * Inicialização e destruição do saco
+ * --------------------------------------------------------------- */
+void saco_init(Saco *s) {
+    s->cabeca    = 0;
+    s->cauda     = 0;
+    s->count     = 0;
+    s->encerrado = 0;
+    pthread_mutex_init(&s->mutex,     NULL);
+    pthread_cond_init (&s->nao_vazio, NULL);
+    pthread_cond_init (&s->nao_cheio, NULL);
+}
+
+void saco_destroy(Saco *s) {
+    pthread_mutex_destroy(&s->mutex);
+    pthread_cond_destroy (&s->nao_vazio);
+    pthread_cond_destroy (&s->nao_cheio);
+}
+
+/* ---------------------------------------------------------------
+ * Insere tarefa no saco (bloqueia se cheio)
+ * --------------------------------------------------------------- */
+void saco_enqueue(Saco *s, Tarefa *t) {
+    pthread_mutex_lock(&s->mutex);
+
+    /* Aguarda espaço disponível */
+    while (s->count == MAX_TAREFAS && !s->encerrado) {
+        printf("[SACO] Cheio, produtor aguardando...\n");
+        pthread_cond_wait(&s->nao_cheio, &s->mutex);
+    }
+
+    if (!s->encerrado) {
+        s->fila[s->cauda] = t;
+        s->cauda = (s->cauda + 1) % MAX_TAREFAS;
+        s->count++;
+        printf("[SACO] Inseriu tarefa %d ('%s') | pendentes: %d\n",
+               t->id, t->descricao, s->count);
+
+        pthread_cond_signal(&s->nao_vazio); /* Acorda um worker */
+    }
+
+    pthread_mutex_unlock(&s->mutex);
+}
+
+/* ---------------------------------------------------------------
+ * Retira tarefa do saco
+ * Retorna: 1 → tarefa retirada; 0 → encerrado e vazio (worker sai)
+ * --------------------------------------------------------------- */
+int saco_dequeue(Saco *s, Tarefa **t) {
+    pthread_mutex_lock(&s->mutex);
+
+    /* Aguarda tarefa disponível OU encerramento */
+    while (s->count == 0 && !s->encerrado) {
+        pthread_cond_wait(&s->nao_vazio, &s->mutex);
+    }
+
+    if (s->count == 0 && s->encerrado) {
+        /* Saco vazio e encerrado: worker deve terminar */
+        pthread_mutex_unlock(&s->mutex);
+        return 0;
+    }
+
+    /* Retira da fila circular */
+    *t = s->fila[s->cabeca];
+    s->cabeca = (s->cabeca + 1) % MAX_TAREFAS;
+    s->count--;
+
+    pthread_cond_signal(&s->nao_cheio); /* Acorda produtor se estava esperando */
+    pthread_mutex_unlock(&s->mutex);
+    return 1;
+}
+
+/* ---------------------------------------------------------------
+ * Sinaliza que não virão mais tarefas
+ * --------------------------------------------------------------- */
+void saco_fechar(Saco *s) {
+    pthread_mutex_lock(&s->mutex);
+    s->encerrado = 1;
+    pthread_cond_broadcast(&s->nao_vazio); /* Acorda todos os workers */
+    pthread_mutex_unlock(&s->mutex);
+    printf("[SACO] Fechado. Workers drenarao o restante.\n");
+}
+
+/* ---------------------------------------------------------------
+ * Função worker: retira e processa tarefas até o saco fechar
+ * --------------------------------------------------------------- */
+typedef struct {
+    int   id;
+    Saco *saco;
+    int   n_processadas; /* Estatística local */
+} Worker;
+
+void *worker_func(void *arg) {
+    Worker *w = (Worker *)arg;
+    Tarefa *t;
+
+    printf("[WORKER %d] Iniciado.\n", w->id);
+
+    while (saco_dequeue(w->saco, &t)) {
+        /* Processamento fora do lock */
+        printf("[WORKER %d] Processando tarefa %d ('%s', %d ms)...\n",
+               w->id, t->id, t->descricao, t->custo_ms);
+
+        usleep(t->custo_ms * 1000); /* Simula trabalho real */
+
+        printf("[WORKER %d] Tarefa %d concluida.\n", w->id, t->id);
+        w->n_processadas++;
+        free(t); /* Libera memória da tarefa */
+    }
+
+    printf("[WORKER %d] Encerrando. Processou %d tarefas.\n",
+           w->id, w->n_processadas);
+    return NULL;
+}
+
+/* ---------------------------------------------------------------
+ * main: produz tarefas e aguarda workers
+ * --------------------------------------------------------------- */
+int main(void) {
+    Saco   saco;
+    pthread_t workers_tid[N_WORKERS];
+    Worker    workers[N_WORKERS];
+
+    saco_init(&saco);
+
+    /* Cria workers ANTES de produzir tarefas */
+    for (int i = 0; i < N_WORKERS; i++) {
+        workers[i].id          = i + 1;
+        workers[i].saco        = &saco;
+        workers[i].n_processadas = 0;
+        pthread_create(&workers_tid[i], NULL, worker_func, &workers[i]);
+    }
+
+    /* Produz tarefas com custos heterogêneos */
+    int custos[] = {200, 50, 400, 30, 350, 10, 150, 500,
+                    80, 250, 20, 300, 60, 420, 90};
+    int n_tarefas = sizeof(custos) / sizeof(custos[0]);
+
+    printf("\n[MAIN] Produzindo %d tarefas...\n\n", n_tarefas);
+
+    for (int i = 0; i < n_tarefas; i++) {
+        Tarefa *t = malloc(sizeof(Tarefa));
+        t->id       = i + 1;
+        t->custo_ms = custos[i];
+        snprintf(t->descricao, sizeof(t->descricao),
+                 "arquivo_%02d.dat", i + 1);
+
+        saco_enqueue(&saco, t);
+        usleep(20000); /* Simula produção não-instantânea */
+    }
+
+    /* Sinaliza fim da produção */
+    printf("\n[MAIN] Todas as tarefas inseridas.\n");
+    saco_fechar(&saco);
+
+    /* Aguarda todos os workers terminarem */
+    for (int i = 0; i < N_WORKERS; i++) {
+        pthread_join(workers_tid[i], NULL);
+    }
+
+    /* Relatório final */
+    printf("\n=== RELATORIO FINAL ===\n");
+    int total = 0;
+    for (int i = 0; i < N_WORKERS; i++) {
+        printf("Worker %d: %d tarefas\n", workers[i].id, workers[i].n_processadas);
+        total += workers[i].n_processadas;
+    }
+    printf("Total processado: %d / %d tarefas\n", total, n_tarefas);
+
+    saco_destroy(&saco);
+    return 0;
+}
+```
+
+## Explicação do Código
+
+1. **`Saco` (struct):** Encapsula a fila circular, contador, flag de encerramento e os dois primitivos de sincronização. Toda a concorrência está contida nessa estrutura.
+2. **`saco_enqueue()`:** Bloqueia no mutex, aguarda espaço com `pthread_cond_wait(&nao_cheio)` se o saco estiver cheio, insere na posição `cauda` e dispara `signal(&nao_vazio)` para acordar exatamente um worker ocioso. O lock é liberado antes de retornar.
+3. **`saco_dequeue()`:** Loop `while (count == 0 && !encerrado)` protege contra _spurious wakeups_. Após a condição ser satisfeita, verifica se deve sair (`count == 0 && encerrado`) ou processar. Retorna `0` para sinalizar ao caller que deve terminar.
+4. **`saco_fechar()`:** Usa `pthread_cond_broadcast` (não `signal`) para garantir que **todos** os workers acordem e verifiquem a condição de saída — caso contrário, alguns poderiam dormir para sempre.
+5. **`worker_func()`:** O loop `while (saco_dequeue(...))` é a essência do padrão: retira e processa até o saco retornar `0`. O processamento (`usleep`) ocorre **fora do lock**, maximizando paralelismo.
+6. **`free(t)`:** Cada tarefa foi alocada com `malloc` pelo produtor; o worker libera após processar — responsabilidade bem definida.
+7. **Workers criados antes das tarefas:** Garante que workers estejam prontos para receber trabalho imediatamente, sem janela de espera.
+8. **`n_processadas` sem lock:** Campo local ao worker, acessado apenas por ele mesmo — sem necessidade de sincronização.
+
+## Saída Esperada
+
+```
+[WORKER 1] Iniciado.
+[WORKER 2] Iniciado.
+[WORKER 3] Iniciado.
+
+[MAIN] Produzindo 15 tarefas...
+
+[SACO] Inseriu tarefa 1 ('arquivo_01.dat') | pendentes: 1
+[WORKER 1] Processando tarefa 1 ('arquivo_01.dat', 200 ms)...
+[SACO] Inseriu tarefa 2 ('arquivo_02.dat') | pendentes: 1
+[WORKER 2] Processando tarefa 2 ('arquivo_02.dat', 50 ms)...
+[WORKER 2] Tarefa 2 concluida.
+[SACO] Inseriu tarefa 3 ('arquivo_03.dat') | pendentes: 1
+[WORKER 2] Processando tarefa 3 ('arquivo_03.dat', 400 ms)...
+...
+[SACO] Fechado. Workers drenarao o restante.
+[WORKER 1] Encerrando. Processou 5 tarefas.
+[WORKER 3] Encerrando. Processou 5 tarefas.
+[WORKER 2] Encerrando. Processou 5 tarefas.
+
+=== RELATORIO FINAL ===
+Worker 1: 5 tarefas
+Worker 2: 5 tarefas
+Worker 3: 5 tarefas
+Total processado: 15 / 15 tarefas
+```
+
+> A distribuição exata entre workers varia a cada execução conforme o escalonamento do SO, mas o total é sempre 15.
+
+## Possíveis Problemas
+
+- **Deadlock por tarefa que insere tarefa:** Se um worker chama `saco_enqueue` dentro de `worker_func` enquanto retém o lock interno, haverá deadlock. Solução: `saco_enqueue` usa seu próprio lock interno — desde que o worker não esteja com o lock ao chamar `enqueue`, não há problema. Com a implementação acima isso é seguro porque o worker nunca retém o lock fora de `saco_dequeue`.
+- **Memory leak:** Tarefas não processadas ao encerrar (se `saco_fechar` for chamada com tarefas ainda no saco). Nesta implementação os workers drenam tudo antes de sair, mas em encerramento abrupto é necessário um destrutor que libere tarefas remanescentes.
+- **Saco ilimitado:** Sem o controle `nao_cheio`, um produtor muito rápido esgota a memória. Sempre defina uma capacidade máxima.
+- **Encerramento prematuro:** Chamar `saco_fechar` antes de inserir todas as tarefas; workers verão saco vazio e encerrado e sairão antes de receber todo o trabalho.
+- **Número de workers inadequado:** Poucos workers → gargalo; muitos workers → contenção no mutex e overhead de context switch superam o ganho paralelo.
+
+## Boas Práticas
+
+1. **Encapsule o saco em uma struct com API bem definida** — `init`, `enqueue`, `dequeue`, `fechar`, `destroy`. Facilita testes e reutilização.
+2. **Sempre use `while` na condição de espera**, nunca `if`:
+    
+    ```c
+    /* CORRETO */while (s->count == 0 && !s->encerrado)    pthread_cond_wait(&s->nao_vazio, &s->mutex);
+    ```
+    
+3. **Use `broadcast` em `saco_fechar`**, não `signal` — garante que todos os workers acordem.
+4. **Processe sempre fora do lock:** Retire a tarefa, libere o mutex, execute; nunca processe dentro do lock.
+5. **Defina responsabilidade de `free`:** Quem libera a memória da tarefa? (Neste exemplo: o worker.) Documente explicitamente.
+6. **Dimensione o número de workers pelo hardware:**
+    
+    ```c
+    /* Heurística para tarefas CPU-bound */int n_workers = sysconf(_SC_NPROCESSORS_ONLN);/* Para I/O-bound, pode usar 2x ou 4x o número de cores */
+    ```
+    
+7. **Adicione timeout em `saco_dequeue` para sistemas que precisam de cancelamento:**
+    
+    ```c
+    struct timespec prazo;clock_gettime(CLOCK_REALTIME, &prazo);prazo.tv_sec += 5; /* Timeout de 5 segundos */pthread_cond_timedwait(&s->nao_vazio, &s->mutex, &prazo);
+    ```
+    
+
+## Comparação com Execução Sequencial
+
+|Aspecto|Sequencial|Thread por tarefa|Saco de Tarefas|
+|---|---|---|---|
+|Criação de threads|0|1 por tarefa|P (fixo, reutilizadas)|
+|Balanceamento|N/A|Automático|Automático|
+|Overhead de criação|0|Alto (muitas threads)|Mínimo (threads reusadas)|
+|Adaptação a custos variáveis|N/A|Sim|Sim|
+|Controle de recursos|Total|Difícil (threads ilimitadas)|Preciso (P fixo)|
+|Implementação|Trivial|Simples|Moderada|
+
+## Erros Frequentes em Provas/Exercícios
+
+- **Usar `if` em vez de `while` na espera:** Não protege contra spurious wakeup.
+- **Chamar `pthread_cond_signal` com o mutex destrancado:** Comportamento indefinido.
+- **Esquecer `pthread_cond_broadcast` no `saco_fechar`:** Workers dormem para sempre.
+- **Processar a tarefa dentro do lock:** Serializa toda a execução, eliminando o paralelismo.
+- **Não inicializar `encerrado = 0`:** Flag lixo pode encerrar workers imediatamente.
+- **Liberar a tarefa duas vezes:** Worker libera, depois produtor tenta liberar novamente.
+- **Criar workers após inserir tarefas:** Race condition onde `saco_fechar` pode ser chamado antes dos workers iniciarem.
+
+## Resumo Rápido
+
+```
+Saco de Tarefas (Bag of Tasks)
+├── Estrutura: fila + mutex + cond_nao_vazio + cond_nao_cheio + flag encerrado
+├── Produtor: saco_enqueue → bloqueia se cheio → signal(nao_vazio)
+├── Worker:   saco_dequeue → bloqueia se vazio → processa FORA do lock
+├── Encerramento: saco_fechar → broadcast(nao_vazio) → workers drenam e saem
+├── Vantagem chave: threads reutilizadas + balanceamento automático
+└── Diferença do Produtor-Consumidor: foco em distribuição de trabalho,
+    não em pipeline de dados; workers são genéricos e o "produto" é a tarefa
+```
 
 |Conceito|Sintaxe|Objetivo|
 |---|---|---|
