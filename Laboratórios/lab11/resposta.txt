@@ -1,0 +1,158 @@
+Link para o GitHub:
+
+========== ESCOPO DO EXPERIMENTO ==========
+CPU: AMD Ryzen 7 5700G (8 NÚCLEOS / 16 THREADS) 
+THREADS: 4 
+SO: WINDOWS 10
+========== RESULTADOS ==========
+
+Granularidade: 0
+Tempo de exec sequencial: 0.000000 segundos
+Tempo de exec paralelo: 0.001000 segundos
+Speedup: 0.000000
+Eficiencia: 0.000000
+----------------------------------------
+
+Granularidade: 1
+Tempo de exec sequencial: 1.554000 segundos
+Tempo de exec paralelo: 0.390000 segundos
+Speedup: 3.984614
+Eficiencia: 0.996154
+----------------------------------------
+
+Granularidade: 2
+Tempo de exec sequencial: 1.564000 segundos
+Tempo de exec paralelo: 0.392000 segundos
+Speedup: 3.989796
+Eficiencia: 0.997449
+----------------------------------------
+
+Granularidade: 4
+Tempo de exec sequencial: 1.563000 segundos
+Tempo de exec paralelo: 0.391000 segundos
+Speedup: 3.997442
+Eficiencia: 0.999361
+----------------------------------------
+
+Granularidade: 8
+Tempo de exec sequencial: 1.565000 segundos
+Tempo de exec paralelo: 0.389000 segundos
+Speedup: 4.023137
+Eficiencia: 1.005784
+----------------------------------------
+
+Granularidade: 16
+Tempo de exec sequencial: 1.565000 segundos
+Tempo de exec paralelo: 0.393000 segundos
+Speedup: 3.982187
+Eficiencia: 0.995547
+----------------------------------------
+
+Granularidade: 32
+Tempo de exec sequencial: 1.565000 segundos
+Tempo de exec paralelo: 0.395000 segundos
+Speedup: 3.962025
+Eficiencia: 0.990506
+----------------------------------------
+
+Granularidade: 64
+Tempo de exec sequencial: 1.573000 segundos
+Tempo de exec paralelo: 0.390000 segundos
+Speedup: 4.033335
+Eficiencia: 1.008334
+----------------------------------------
+
+Granularidade: 128
+Tempo de exec sequencial: 1.561000 segundos
+Tempo de exec paralelo: 0.387000 segundos
+Speedup: 4.033594
+Eficiencia: 1.008398
+----------------------------------------
+
+Granularidade: 256
+Tempo de exec sequencial: 1.562000 segundos
+Tempo de exec paralelo: 0.391000 segundos
+Speedup: 3.994885
+Eficiencia: 0.998721
+----------------------------------------
+
+Granularidade: 512
+Tempo de exec sequencial: 1.553000 segundos
+Tempo de exec paralelo: 0.393000 segundos
+Speedup: 3.951653
+Eficiencia: 0.987913
+----------------------------------------
+
+Granularidade: 1024
+Tempo de exec sequencial: 1.562000 segundos
+Tempo de exec paralelo: 0.389000 segundos
+Speedup: 4.015422
+Eficiencia: 1.003855
+----------------------------------------
+
+Granularidade: 2048
+Tempo de exec sequencial: 1.564000 segundos
+Tempo de exec paralelo: 0.392000 segundos
+Speedup: 3.989796
+Eficiencia: 0.997449
+----------------------------------------
+
+Granularidade: 4096
+Tempo de exec sequencial: 1.559000 segundos
+Tempo de exec paralelo: 0.394000 segundos
+Speedup: 3.956852
+Eficiencia: 0.989213
+----------------------------------------
+
+Granularidade: 8192
+Tempo de exec sequencial: 1.565000 segundos
+Tempo de exec paralelo: 0.391000 segundos
+Speedup: 4.002557
+Eficiencia: 1.000639
+----------------------------------------
+
+Granularidade: 16384
+Tempo de exec sequencial: 3.121000 segundos
+Tempo de exec paralelo: 0.778000 segundos
+Speedup: 4.011567
+Eficiencia: 1.002892
+----------------------------------------
+
+Granularidade: 32768
+Tempo de exec sequencial: 4.681000 segundos
+Tempo de exec paralelo: 1.174000 segundos
+Speedup: 3.987223
+Eficiencia: 0.996806
+----------------------------------------
+
+Granularidade: 65536
+Tempo de exec sequencial: 7.810000 segundos
+Tempo de exec paralelo: 1.950000 segundos
+Speedup: 4.005128
+Eficiencia: 1.001282
+----------------------------------------
+
+Granularidade: 131072
+Tempo de exec sequencial: 14.053000 segundos
+Tempo de exec paralelo: 3.516000 segundos
+Speedup: 3.996871
+Eficiencia: 0.999218
+----------------------------------------
+
+Granularidade: 262144
+Tempo de exec sequencial: 26.683000 segundos
+Tempo de exec paralelo: 6.690000 segundos
+Speedup: 3.988490
+Eficiencia: 0.997123
+----------------------------------------
+
+
+========== COMENTÁRIOS ==========
+O overhead de criação e escalonamento das tarefas só superou  o benefício do paralelismo quando a granularidade foi 0, 
+pois nesse caso praticamente não há trabalho útil a ser dividido. 
+A partir da granularidade 1, porém, o paralelismo passa a compensar muito bem, 
+com speedup sempre próximo de 4 e eficiência próxima de 1, o que indica bom aproveitamento das quatro threads. 
+Isso mostra que, quando cada tarefa possui algum custo computacional ou tempo de espera suficiente, 
+o custo de criar, distribuir e sincronizar as tarefas fica pequeno em relação ao ganho obtido pela execução paralela. 
+Portanto, neste experimento, o overhead só domina quando o trabalho por tarefa é praticamente nulo. 
+Nas demais granularidades, mesmo nas menores, o benefício do paralelismo supera o custo de escalonamento.
