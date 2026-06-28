@@ -44,8 +44,8 @@ int main() {
     int soma = 0;
     int vetor[1000];
 
-    // Inicializando vetor
-    for(i = 0; i < n; i++) vetor[i] = 1;
+    
+    for(i = 0; i < n; i++) vetor[i] = 1; // Inicializando vetor
     
     #pragma omp parallel for reduction(+:soma)
     for(i = 0; i < n; i++) {
@@ -56,36 +56,55 @@ int main() {
     return 0;
 }
 ```
+Quatro tipos comuns de operações de redução:
+
+1. **Soma (`+`)**: Acumula a soma dos elementos.
+2. **Produto (`*`)**: Acumula o produto dos elementos.
+3. **Mínimo (`min`)**: Encontra o menor valor entre todos os elementos.
+4. **Máximo (`max`)**: Encontra o maior valor entre todos os elementos.
 
 **5)** No código abaixo, faça um diagrama do escalonamento das iterações do laço entre 4 threads. (0,5 ponto)
 
-C
+```C
+#pragma omp for schedule(guided, 5)
+for (j = 0; j < 50; j++) 
+    a[j] = b[j] + c[j]; 
+```
 
-```
-#pragma omp for schedule(guided, 5) // [cite: 13]
-for (j = 0; j < 50; j++) // [cite: 14, 15]
-    a[j] = b[j] + c[j]; // [cite: 16]
-```
+R:  
+
+| Iterações restantes | Tamanho |     j | Thread |
+| :------------------ | :-----: | ----: | ------ |
+| 50                  |   12    |  0-11 | A      |
+| 38                  |    9    | 12-20 | B      |
+| 29                  |    7    | 21-27 | C      |
+| 22                  |    5    | 28-32 | D      |
+| 17                  |    5    | 33-37 | A      |
+| 12                  |    5    | 38-42 | B      |
+| 7                   |    5    | 43-47 | C      |
+| 2                   |    5    | 48-49 | D      |
+
+
 
 **6)** Reescreva o código seguinte, colocando as diretivas `barrier` explicitamente, de modo a maximizar o desempenho, mas sem alterar o resultado da execução. (0,5 ponto)
 
 C
 
-```
+```C
 #pragma omp parallel 
-{ // [cite: 19]
-    #pragma omp for nowait // [cite: 20]
-    for (j = 0; j < n; j++) // [cite: 21]
-        a[j] = b[j] + c[j]; // [cite: 22]
+{ 
+    #pragma omp for nowait 
+    for (j = 0; j < n; j++) 
+        a[j] = b[j] + c[j]; 
     
-    #pragma omp for nowait // [cite: 23]
-    for (j = 0; j < n; j++) // [cite: 24]
-        d[j] = e[j] * f; // [cite: 25]
+    #pragma omp for nowait 
+    for (j = 0; j < n; j++) 
+        d[j] = e[j] * f; 
     
-    #pragma omp for nowait // [cite: 26]
-    for (j = 0; j < n; j++) { // [cite: 27]
-        z[j] = (a[j] + a[j+1]) * 8.5; // [cite: 29]
-    } // [cite: 28]
+    #pragma omp for nowait 
+    for (j = 0; j < n; j++) { 
+        z[j] = (a[j] + a[j+1]) * 8.5; 
+    } 
 }
 ```
 
