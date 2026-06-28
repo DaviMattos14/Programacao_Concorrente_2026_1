@@ -1,18 +1,61 @@
-	**NOME** Davi dos Santos Mattos **DRE**: 119133049
-	Prof. Gabriel P. Silva - 2026.1
+**NOME** Davi dos Santos Mattos **DRE**: 119133049
+Prof. Gabriel P. Silva - 2026.1
 
 **1)** Qual a diferença entre o valor retornado pelas seguintes rotinas dentro e fora de uma região paralela? (0,5 ponto) 
-	a) `omp_get_num_threads()` 
-	R: 
-	b) `omp_get_max_threads()` 
-	c) `omp_get_num_procs()` 
-	d) `omp_in_parallel()`
+
+a) `omp_get_num_threads()` 
+
+R: Retorna o número de threads que estão atualmente ativas. Fora da região paralela retorna 1, pois apenas a thread principal está executando. Dentro da região paralela retorna a quantidade de threads ativas no grupo criador por `#pragma omp parallel`. 
+
+b) `omp_get_max_threads()` 
+	
+R: Retorna o número máximo de threads que o OpenMP disponibilizará caso uma região paralela seja iniciada logo em seguida sem especificar um número exato.
+**Fora da região:** Retorna o valor máximo padrão do sistema (geralmente igual ao número de núcleos do seu processador).
+**Dentro da região:** Geralmente retorna o mesmo valor máximo configurado para o ambiente, pois é uma consulta de capacidade, não do estado atual.
+
+c) `omp_get_num_procs()` 
+
+R: Retorna o número de processadores (núcleos lógicos) físicos disponíveis na máquina onde o código está rodando.
+Fora e Dentro da região retorna exatamente o mesmo valor.
+
+d) `omp_in_parallel()`
+R: Retorna um valor booleano (verdadeiro ou falso) indicando se o código atual está sendo executado por múltiplas threads em paralelo. Fora da região retorna 0 (Falso). Dentro da região retorna 11 (Verdadeiro).
 
 **2)** Quais as diferenças entre a declaração de variáveis `private`, `firstprivate` e `lastprivate`? Em quais diretivas são utilizadas? (0,5 ponto)
 
+R: 
+- `private` cria uma nova instância da variável para cada thread. Pode ser utilizada nas diretivas `parallel`, `for`, `sections`,  e `task`
+- `firstprivate` cada thread cria sua própria cópia da variável, mas essa cópia é inicializada com o valor que a variável tinha antes de entrar na região paralela. Pode ser utilizada nas diretivas parallel, for, sections, single, e task
+- `lastprivate` garante que, ao sair da região, a variável original (fora) receba o valor da variável correspondente da última iteração do laço. Pode ser utilizadas com as diretivas `for`, `sections` (e as formas combinadas `parallel for`, `parallel sections`) e `taskloop`.
+
 **3)** Quais as diferenças entre as diretivas `master` e `single`? (0,5 ponto)
 
+R: `master` garante que a única thread a executar o bloco seja sempre a thread mestre (ID 0) e não possui uma barreira implícita, enquanto single, garante que a única thread a executar o bloco seja a primeira que chegar e possui uma barreira implícita
+
 **4)** Forneça um exemplo do uso da cláusula `reduction` no OpenMP. Descreva quatro tipos de operações de redução que podem ser utilizadas com esta cláusula. (0,5 ponto)
+
+R: Soma de elementos em um vetor
+```C
+#include <stdio.h>
+#include <omp.h>
+
+int main() {
+    int i, n = 1000;
+    int soma = 0;
+    int vetor[1000];
+
+    // Inicializando vetor
+    for(i = 0; i < n; i++) vetor[i] = 1;
+    
+    #pragma omp parallel for reduction(+:soma)
+    for(i = 0; i < n; i++) {
+        soma += vetor[i];
+    }
+
+    printf("Resultado total da soma: %d\n", soma);
+    return 0;
+}
+```
 
 **5)** No código abaixo, faça um diagrama do escalonamento das iterações do laço entre 4 threads. (0,5 ponto)
 
