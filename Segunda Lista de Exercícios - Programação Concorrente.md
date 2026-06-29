@@ -253,58 +253,66 @@ R: A cláusula `collapse` server para paralelizar laços de repetições aninhad
 
 **13)** Explique a diferença fundamental entre tarefas explícitas e tarefas implícitas no OpenMP. Em que contextos cada tipo de tarefa é gerado? (0,5 ponto)
 
-R: Tarefas implícitas são as que são geradas automaticamente pelo ambiente ao entrar em uma região paralela, enquanto tarefas explicitas são aquelas que são definidas manualmente através de `pragma omp task`
+R: Tarefas implícitas são as que são geradas automaticamente pelo ambiente ao entrar em uma região paralela (`pragma omp parallel`), enquanto tarefas explicitas são aquelas que são definidas manualmente através de `pragma omp task`
 
 **14)** Defina o que é um ponto de escalonamento de tarefas. Liste pelo menos três ações distintas que uma thread pode tomar ao encontrar um ponto de escalonamento durante a execução de uma tarefa. (0,5 ponto)
 
+R: Um ponto de escalonamento de tarefas é um lugar específico, dentro da execução de uma tarefa, onde a thread que está executando aquela tarefa tem permissão do runtime para parar o que está fazendo e considerar fazer outra coisa, podendo ser, começar uma tarefa nova, retomar uma que tinha pausado antes, ou simplesmente continuar de onde estava.
+
 **15)** O que são os pontos de sincronização de tarefas, e como a diretiva `#pragma omp taskwait` é especificamente utilizada neste contexto? (0,5 ponto)
+
+R: Um ponto de sincronização de tarefas é um lugar no código onde se estabelece uma garantia de conclusão: a execução só pode seguir adiante depois que determinadas tarefas forem concluídas. `taskwait` é uma diretiva que suspende a execução da tarefa atual e faz com que a thread aguarde até que todas as tarefas filhas diretas sejam concluídas.
 
 **16)** No trecho de código a seguir, identifique adequadamente os pontos de escalonamento e de sincronização de código. (1,0 ponto)
 
-C
+```C
+#include <stdio.h>
+#include <omp.h> 
 
-```
-#include <stdio.h> // [cite: 83]
-#include <omp.h> // [cite: 84]
+int main() { 
+    #pragma omp parallel num_threads(4) 
+    { 
+        #pragma omp single 
+        { 
+            #pragma omp task // <-------- ESCALONAMENTO
+            printf("Executando Tarefa A \n"); 
+			
+			// <-------- ESCALONAMENTO
 
-int main() { // [cite: 84]
-    #pragma omp parallel num_threads(4) // [cite: 85]
-    { // [cite: 86]
-        #pragma omp single // [cite: 87]
-        { // [cite: 88]
-            #pragma omp task // [cite: 89]
-            printf("Executando Tarefa A \n"); // [cite: 90]
+            #pragma omp taskyield // <-------- ESCALONAMENTO
+            printf("Após taskyield \n"); //
             
-            #pragma omp taskyield // [cite: 91]
-            printf("Após taskyield \n"); // [cite: 92]
+            #pragma omp task // <-------- ESCALONAMENTO
+            printf("Executando Tarefa B \n"); 
             
-            #pragma omp task // [cite: 93]
-            printf("Executando Tarefa B \n"); // [cite: 94]
+            // <-------- ESCALONAMENTO
             
-            #pragma omp taskwait // [cite: 95]
-            printf("Após taskwait \n"); // [cite: 96]
+            #pragma omp taskwait // <-------- SINCRONIZAÇÃO E ESCALONAMENTO
+            printf("Após taskwait \n"); 
             
-            int data = 0; // [cite: 97]
+            int data = 0; 
             
-            #pragma omp task depend(out: data) // [cite: 98]
-            data = 42; // [cite: 98]
+            #pragma omp task depend(out: data) // <-------- ESCALONAMENTO
+            data = 42; 
             
-            #pragma omp task depend(in: data) // [cite: 99]
-            printf("Data = %d\n", data); // [cite: 100]
+            #pragma omp task depend(in: data) // <-------- ESCALONAMENTO
+            printf("Data = %d\n", data); 
             
-            #pragma omp taskgroup // [cite: 101]
-            { // [cite: 102]
-                #pragma omp task // [cite: 103]
-                printf("Tarefa E no taskgroup \n"); // [cite: 104]
+            #pragma omp taskgroup 
+            { 
+                #pragma omp task // <-------- ESCALONAMENTO
+                printf("Tarefa E no taskgroup \n"); 
                 
-                #pragma omp task // [cite: 105]
-                printf("Tarefa F no taskgroup \n"); // [cite: 106]
-            } // Fim do taskgroup [cite: 107, 108]
-        } // Fim do single [cite: 109, 110]
-    } // Fim do parallel [cite: 111, 112]
-    return 0; // [cite: 113]
-} // Fim do programa [cite: 114]
+                #pragma omp task  // <-------- ESCALONAMENTO
+                printf("Tarefa F no taskgroup \n"); 
+            } // Fim do taskgroup 
+        } // Fim do single 
+    } // Fim do parallel 
+    return 0;
+} // Fim do programa
 ```
+
+R: 
 
 **17)** Descreva a função das cláusulas `if` e `final` e como elas se diferenciam na geração e execução das tarefas. (0,5 ponto)
 
