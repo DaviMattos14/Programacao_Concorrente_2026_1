@@ -207,13 +207,45 @@ R: `i = N `. `x = 1`
 
 c) Qual seria o valor de `x` ao final do laço se seu escopo fosse `shared`? 
 
-R: `x = N + 1`
+R: Não tem como saber, pois se `x` fosse `shared`, todas as threads leriam e escreveriam na **mesma posição de memória**, simultaneamente, sem nenhuma sincronização. Isso é uma **condição de corrida** clássica: não existe garantia de ordem entre as escritas de diferentes threads.
 
 d) Este laço pode ser paralelizado corretamente (isto é, preservando a semântica sequencial) apenas com o uso de diretivas OpenMP?
 
+R: Não, pois a lógica `y[i] = x + i` combinada com `x = i` estabelece uma dependência de dados.
+
 **10)** Quais os mecanismos disponíveis no OpenMP para lidar com as condições de corrida? (0,5 ponto)
 
+R: 
+- `atomic` - garante que uma operação específica de leitura e escrita em uma memória seja executada de forma atômica
+- `critical`- cria uma "seção crítica". Apenas uma thread por vez pode entrar nesse bloco de código.
+- `barrier` - força todas as threads a pararem e esperarem até que todo o grupo chegue ao mesmo ponto.
+- `lock` - bloqueiam e desbloqueiam as threads
+- `reduction` - deixa o OpenMP gerenciar cópias privadas + combinação final automaticamente, sem você precisar de bloquear nenhuma thread.
+
 **11)** Descreva como a diretiva `ordered` é utilizada no OpenMP. Apresente um trecho de código como exemplo. (0,5 ponto)
+
+R: `ordered` é tanto uma cláusula da diretiva `for` , quanto uma diretiva por si só, que serve para indicar que o trecho deve ser executado como se fosse sequencialmente.
+
+```C
+#include <stdio.h>
+#include <omp.h>
+
+int main() {
+    int i;
+ 
+   #pragma omp parallel for ordered
+    for(i = 0; i < 5; i++) {
+
+        int valor = algum_calculo(i); 
+
+        #pragma omp ordered
+        {
+            printf("Iteração %d processada: %d\n", i, valor);
+        }
+    }
+    return 0;
+}
+```
 
 **12)** Como a cláusula `collapse` funciona no OpenMP e em que situações deve-se utilizá-la? (0,5 ponto)
 
