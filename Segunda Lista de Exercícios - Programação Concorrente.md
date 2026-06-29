@@ -351,6 +351,20 @@ int main() {
 ```
 
 R:
+
+```mermaid
+graph LR
+    A((A))
+    B((B))
+    C((C))
+    D((D))
+    
+    A --> B
+    A --> D
+    B --> C
+    B --> D
+    C --> D
+```
 ![[Pasted image 20260629182339.png]]
 
 **19)** Desenhe o grafo de dependências para o trecho de código a seguir: (1,0 ponto)
@@ -393,39 +407,30 @@ int main() {
 }
 ```
 
+R:
+```mermaid
+graph LR
+    T1((T1))
+
+    T2((T2))
+    T3((T3))
+    T4((T4))
+    T5((T5))
+    T6((T6))
+
+    T1 --> T2
+    T1 --> T3
+    T1 --> T4
+
+    T3 --> T5
+    T4 --> T6
+
+    T5 --> T2
+    T6 --> T2
+```
+
+![[Pasted image 20260629184859.png]]
+
 **20)** Explique a diretiva `#pragma omp taskloop`. Mencione pelo menos duas cláusulas específicas que podem ser usadas com `taskloop` e descreva suas funções. (0,5 ponto)
 
-### Glossário
-
-- **OpenMP (Open Multi-Processing):** Uma interface de programação (API) para escrever aplicações multithread em memória compartilhada em linguagens como C, C++ e Fortran.
-    
-- **Diretiva/Pragma:** Instruções especiais que o compilador utiliza (como `#pragma omp`) para alterar o comportamento de execução (ex: paralelizar um bloco).
-    
-- **Condição de corrida (Data Race):** Ocorre quando duas ou mais threads tentam acessar e modificar o mesmo dado simultaneamente, gerando resultados imprevisíveis.
-    
-- **Barreira (Barrier):** Ponto de sincronização onde todas as threads de uma equipe devem parar e aguardar até que todas as outras threads também alcancem este ponto.
-    
-
-### Pontos de atenção
-
-- **Dependências de dados em laços (Exercício 8):** Nem todo laço `for` pode ser magicamente paralelizado. Se a iteração atual (ex: $i$) depende de um valor calculado na iteração anterior (ex: $i-1$), o OpenMP não conseguirá paralelizar sem gerar uma condição de corrida ou quebrar a lógica matemática.
-    
-- **Fuga de Escopo:** Variáveis criadas fora do bloco paralelo por padrão são `shared` (compartilhadas). Modificá-las concorrentemente sem diretivas adequadas como `atomic` ou `reduction` fatalmente corromperá seu cálculo.
-    
-- **Quebra de fluxo estruturado (break/return):** O OpenMP exige que o bloco paralelo tenha um único ponto de entrada e de saída no fluxo. Utilizar comandos como `break` (como visto no Exercício 8e) ou `return` no meio de um laço paralelizado resulta em falha de compilação.
-    
-
-### Resumo do método
-
-Para abordar as resoluções numéricas e conceituais desta lista de forma sólida, siga este checklist durante seus estudos:
-
-1. **Identifique a Região Paralela:** Observe onde começa o `#pragma omp parallel` e onde ele termina.
-    
-2. **Mapeie o Escopo das Variáveis:** Liste quais variáveis são `shared`, `private`, `firstprivate` ou `lastprivate`.
-    
-3. **Desenhe Grafos de Dependência (para diretivas `task`):** Se existirem cláusulas `depend(in)`, `depend(out)` ou `depend(inout)`, desenhe nós (tarefas) e setas apontando quem precisa terminar para quem começar.
-    
-4. **Inspecione Dependências Cíclicas:** Em laços `for`, escreva manualmente as três primeiras iterações (ex: iteração $0, 1, 2$) para visualizar se há leitura de índices recém-modificados ou não.
-    
-
-Esta é toda a transcrição, formatada e corrigida de anomalias visuais de extração. Existe algum exercício específico desta lista cuja teoria e derivação passo a passo você gostaria de explorar agora?
+R: A diretiva `taskloop` 
