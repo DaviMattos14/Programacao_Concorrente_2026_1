@@ -315,81 +315,81 @@ int main() {
 R: 
 
 **17)** Descreva a função das cláusulas `if` e `final` e como elas se diferenciam na geração e execução das tarefas. (0,5 ponto)
+R: A cláusula `if` controla a criação da tarefa baseada em uma condição booleana, se a condição for verdadeira, a tarefa é criada e pode ser executada por qualquer thread. Se for falsa, a tarefa é executada imediatamente pela thread atual.
+
+A clausula `final` força uma tarefa a não gerar mais tarefas filhas, se a condição da cláusula final for verdadeira, a tarefa e todas as suas tarefas descendentes devem ser executadas imediatamente pela thread atual, sem que nenhuma nova tarefa seja criada ou enfileirada.
 
 **18)** Considere o seguinte trecho de código. Aplique a cláusula `depend` com os argumentos corretos para garantir a execução correta das tarefas. Em seguida, desenhe o grafo de dependências. (0,5 ponto)
-
-C
-
-```
-int main() { // [cite: 119]
-    int A = 0, B = 0, C = 0; // [cite: 120]
+```c
+int main() { 
+    int A = 0, B = 0, C = 0; 
     
-    #pragma omp parallel // [cite: 121]
-    { // [cite: 122]
-        #pragma omp single // [cite: 123]
-        { // [cite: 124]
-            #pragma omp task // [cite: 125]
-            // Tarefa A [cite: 126]
-            A = 1; // [cite: 125]
+    #pragma omp parallel 
+    { 
+        #pragma omp single 
+        { 
+            #pragma omp task depend(out:A)
+            // Tarefa A 
+            A = 1; 
             
-            #pragma omp task // [cite: 127]
-            // Tarefa B [cite: 128]
-            B = A + 1; // [cite: 129]
+            #pragma omp task depend(in: A) depend(out: B)
+            // Tarefa B 
+            B = A + 1; 
             
-            #pragma omp task // [cite: 130]
-            // Tarefa C [cite: 131]
-            C = B + C; // [cite: 132]
-            
-            #pragma omp task // [cite: 133]
-            // Tarefa D [cite: 134]
-            printf("Resultado final %d %d %d \n", A, B, C); // [cite: 135]
-        } // Fim do single [cite: 137]
-    } // Fim do parallel [cite: 136, 138]
+            #pragma omp task depend(in:B) depend(inout:C)
+            // Tarefa C 
+            C = B + C;     
+                   
+            #pragma omp task depend(in:A,B,C)
+            // Tarefa D 
+            printf("Resultado final %d %d %d \n", A, B, C); 
+        } // Fim do single
+    } // Fim do parallel 
     
-    return 0; // [cite: 140]
-} // Fim do programa principal [cite: 139, 141]
+    return 0; 
+} // Fim do programa principal 
 ```
+
+R:
+![[Pasted image 20260629182339.png]]
 
 **19)** Desenhe o grafo de dependências para o trecho de código a seguir: (1,0 ponto)
-
-C
-
-```
-int main() { // [cite: 143]
-    int x = 0, y = 8, z = 0; // [cite: 144]
+```C
+int main() { 
+    int x = 0, y = 8, z = 0; 
     
-    #pragma omp parallel // [cite: 145]
-    { // [cite: 146]
-        #pragma omp single // [cite: 148]
-        { // [cite: 147]
-            // Task 1: [cite: 149]
-            #pragma omp task depend(out: x) shared(x) // [cite: 150]
-            x = 5; // [cite: 151]
+    #pragma omp parallel 
+    { 
+        #pragma omp single 
+        { 
+            // Task 1: 
+            #pragma omp task depend(out: x) shared(x) 
+            x = 5; 
             
-            // Task 2: [cite: 152]
-            #pragma omp task depend(in: x, y, z) shared(x, y, z) // [cite: 153]
-            int resultado = x + y + z; // [cite: 154]
+            // Task 2: 
+            #pragma omp task depend(in: x, y, z) shared(x, y, z) 
+            int resultado = x + y + z;
             
-            // Task 3: [cite: 155]
-            #pragma omp task depend(in: x) depend(out: y) shared(x, y) // [cite: 156]
-            y = x * 2; // [cite: 159]
+            // Task 3: 
+            #pragma omp task depend(in: x) depend(out: y) shared(x, y) 
+            y = x * 2; 
             
-            // Task 4: [cite: 160]
-            #pragma omp task depend(in: x) depend(out: z) shared(x, z) // [cite: 161]
-            z = x + 10; // [cite: 161]
+            // Task 4: 
+            #pragma omp task depend(in: x) depend(out: z) shared(x, z) 
+            z = x + 10; 
             
-            // Task 5: [cite: 162]
-            #pragma omp task depend(inout: y) shared(y) // [cite: 163]
-            y = y + 3; // [cite: 164]
+            // Task 5: 
+            #pragma omp task depend(inout: y) shared(y) 
+            y = y + 3; 
             
-            // Task 6: [cite: 165]
-            #pragma omp task depend(inout: z) shared(z) // [cite: 166]
-            z = z - 2; // [cite: 167]
-        } // [cite: 157]
-    } // [cite: 158]
+            // Task 6: 
+            #pragma omp task depend(inout: z) shared(z) 
+            z = z - 2; 
+        } 
+    } 
     
-    printf("Valores finais: x=%d, y=%d, z=%d\n", x, y, z); // [cite: 169]
-    return 0; // [cite: 169]
+    printf("Valores finais: x=%d, y=%d, z=%d\n", x, y, z); 
+    return 0; 
 }
 ```
 
