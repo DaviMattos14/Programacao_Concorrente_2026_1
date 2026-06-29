@@ -249,7 +249,11 @@ int main() {
 
 **12)** Como a cláusula `collapse` funciona no OpenMP e em que situações deve-se utilizá-la? (0,5 ponto)
 
+R: A cláusula `collapse` server para paralelizar laços de repetições aninhados, fundindo as iterações, pois sem esta cláusula, o a diretiva `for` só "enxergar" o laço de repetição externo. `collapse` é utilizado quando o laço externos não tiver repetições o suficiente para ocupar todas as threads.
+
 **13)** Explique a diferença fundamental entre tarefas explícitas e tarefas implícitas no OpenMP. Em que contextos cada tipo de tarefa é gerado? (0,5 ponto)
+
+R: Tarefas implícitas são as que são geradas automaticamente pelo ambiente ao entrar em uma região paralela, enquanto tarefas explicitas são aquelas que são definidas manualmente através de `pragma omp task`
 
 **14)** Defina o que é um ponto de escalonamento de tarefas. Liste pelo menos três ações distintas que uma thread pode tomar ao encontrar um ponto de escalonamento durante a execução de uma tarefa. (0,5 ponto)
 
