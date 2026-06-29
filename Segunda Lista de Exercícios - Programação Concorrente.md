@@ -75,21 +75,20 @@ R:
 
 | Iterações restantes | Tamanho |     j | Thread |
 | :------------------ | :-----: | ----: | ------ |
-| 50                  |   12    |  0-11 | A      |
-| 38                  |    9    | 12-20 | B      |
-| 29                  |    7    | 21-27 | C      |
-| 22                  |    5    | 28-32 | D      |
-| 17                  |    5    | 33-37 | A      |
-| 12                  |    5    | 38-42 | B      |
-| 7                   |    5    | 43-47 | C      |
-| 2                   |    5    | 48-49 | D      |
+| 50                  |   13    |  0-12 | A      |
+| 37                  |   10    | 13-22 | B      |
+| 27                  |    7    | 23-29 | C      |
+| 20                  |    5    | 30-34 | D      |
+| 15                  |    5    | 35-39 | A      |
+| 10                  |    5    | 40-44 | B      |
+| 5                   |    5    | 45-49 | C      |
+
 
 
 
 **6)** Reescreva o código seguinte, colocando as diretivas `barrier` explicitamente, de modo a maximizar o desempenho, mas sem alterar o resultado da execução. (0,5 ponto)
 
-C
-
+R:
 ```C
 #pragma omp parallel 
 { 
@@ -101,6 +100,8 @@ C
     for (j = 0; j < n; j++) 
         d[j] = e[j] * f; 
     
+    #pragma omp barrier
+    
     #pragma omp for nowait 
     for (j = 0; j < n; j++) { 
         z[j] = (a[j] + a[j+1]) * 8.5; 
@@ -110,101 +111,105 @@ C
 
 **7)** Paralelizar o exemplo a seguir sem o uso da diretiva `for` ou `parallel for`. (0,5 ponto)
 
-C
+R:
+```C
+#pragma omp parallel
+{
+    int id = omp_get_thread_num();
+    int nthreads = omp_get_num_threads();
+    int i;
 
-```
-for (i = 0; i < n; i++) // [cite: 31]
-    z[i] = a * x[i] + y; // [cite: 32]
+    for (i = id; i < n; i += nthreads)
+        z[i] = a * x[i] + y;
+}
 ```
 
 **8)** Explique o porquê cada um dos laços a seguir pode ou não pode ser paralelizado com a diretiva `parallel for`. (0,5 ponto)
 
 **a)**
 
-C
-
+```C
+for (i = 0; i < N; i++) 
+    if (x[i] > maxval) break; 
 ```
-for (i = 0; i < N; i++) // [cite: 35]
-    if (x[i] > maxval) break; // [cite: 36]
-```
+R: Não pode o comando `break` exige que a verificação seja feita de forma sequencial, se uma thread encontrar o maxval primeiro, ela deve parar o laço inteiro, o que é complexo de sincronizar paralelamente.
 
 **b)**
-
-C
-
+```C
+for (i = 0; i < N; i++) 
+    for (j = 0; j < i; j++) 
+        a[j][i] = a[j+1][i]; 
 ```
-for (i = 0; i < N; i++) // [cite: 37]
-    for (j = 0; j < i; j++) // [cite: 38]
-        a[j][i] = a[j+1][i]; // [cite: 39]
-```
+R: O laço externo pode ser paralelizado: cada valor de `i` opera sobre uma coluna `i` própria, e colunas diferentes nunca se tocam. Mas o laço interno (j) não, pois tem uma dependência: o valor lido em `a[j+1][i]` na iteração `j` é o mesmo índice que será escrito na iteração `j+1`. Se as iterações de `j` rodarem fora de ordem, uma thread pode escrever em `a[j+1][i]` antes que outra leia esse valor.
+
 
 **c)**
-
-C
-
+```C
+for (k = 0; k < N; k++) 
+    x[k] = q + y[k] * (r * z[k+10] + t * z[k+10]); 
 ```
-for (k = 0; k < N; k++) // [cite: 40]
-    x[k] = q + y[k] * (r * z[k+10] + t * z[k+10]); // [cite: 41]
-```
+R: **Sim.** Cada iteração $k$ escreve apenas em `x[k]` e lê de `y[k]` e `z[k+10]`. Como nenhuma escrita sobrepõe uma leitura de outra iteração (a escrita é sempre em `x[k]`), não há dependência de dados.
 
 **d)**
-
-C
-
+```C
+for (i = 1; i < N; i++) 
+    x[i] = z[i] * (y[i] - x[i-1]); 
 ```
-for (i = 1; i < N; i++) // [cite: 42]
-    x[i] = z[i] * (y[i] - x[i-1]); // [cite: 43]
-```
+R: Não pode. `x[i]` depende explicitamente de `x[i-1]`, que foi calculado na iteração anterior, é uma recorrência sequencial. Cada iteração só pode rodar depois que a anterior terminou.
 
 **e)**
-
-C
-
+```C
+for (i = 0; i < N; i++) { 
+    if (fabs(a[i]) > machine_max || fabs(a[i]) < machine_min) {
+        printf("i=%d \n", i); 
+        break; 
+    } 
+    a[i] = a[i] * a[i];
+} 
 ```
-for (i = 0; i < N; i++) { // [cite: 44]
-    if (fabs(a[i]) > machine_max || fabs(a[i]) < machine_min) { // [cite: 45, 47]
-        printf("i=%d \n", i); // [cite: 48]
-        break; // [cite: 49]
-    } // [cite: 50]
-    a[i] = a[i] * a[i]; // [cite: 46]
-} // [cite: 51]
-```
+R: **Não.** Assim como no item (a), o comando `break` exige que a verificação seja feita de forma sequencial.
 
 **f)**
-
-C
-
+```C
+for (i = 1; i < N; i++) 
+    for (k = 0; k < i; k++) 
+        w[i] += b[k][i] * w[(i-k)-1]; 
 ```
-for (i = 1; i < N; i++) // [cite: 52]
-    for (k = 0; k < i; k++) // [cite: 54]
-        w[i] += b[k][i] * w[(i-k)-1]; // [cite: 53]
-```
+R: **Não.** O valor de `w[i]` depende de valores anteriores de `w`.
 
 **g)**
-
-C
-
+```C
+for (k = 0; k < N; k++) 
+    x[k] = u[k] + r * (z[k] + r * y[k]) + 
+           t * (u[k+3] + r * (u[k+2] + r * u[k+1]) + 
+           t * (u[k+6] + r * (u[k+5] + r * u[k+4])));
 ```
-for (k = 0; k < N; k++) // [cite: 55]
-    x[k] = u[k] + r * (z[k] + r * y[k]) + // [cite: 56]
-           t * (u[k+3] + r * (u[k+2] + r * u[k+1]) + // [cite: 57]
-           t * (u[k+6] + r * (u[k+5] + r * u[k+4]))); // [cite: 58]
-```
+R: Sim, todos os índices acessados (`u[k]`, `z[k]`, `u[k+3]`, etc.) são constantes ou dependem apenas do índice $k$ atual. Não há escrita em um índice que será lido por uma iteração futura de forma conflituosa.
+
 
 **9)** Considere o seguinte laço: (0,5 ponto)
-
-C
-
-```
-x = 1; // [cite: 60]
-#pragma omp parallel for firstprivate(x) // [cite: 61]
-for(i = 0; i < N; i++) { // [cite: 62]
-    y[i] = x + i; // [cite: 64]
-    x = i; // [cite: 65]
-} // [cite: 63]
+``` C
+x = 1;
+#pragma omp parallel for firstprivate(x) 
+for(i = 0; i < N; i++) { 
+    y[i] = x + i; 
+    x = i; 
+} 
 ```
 
-a) Porque este laço está incorreto? `y[i]` recebe o mesmo resultado independente do número de threads executando o laço? b) Qual o valor da variável `i` ao final do laço? Qual é o valor da variável `x` ao final do laço? c) Qual seria o valor de `x` ao final do laço se seu escopo fosse `shared`? d) Este laço pode ser paralelizado corretamente (isto é, preservando a semântica sequencial) apenas com o uso de diretivas OpenMP?
+a) Porque este laço está incorreto? `y[i]` recebe o mesmo resultado independente do número de threads executando o laço? 
+
+R: Por causa de `firstprivate(x)` que garante que o valor de `x` dentro da região paralela será sempre 1. 
+
+b) Qual o valor da variável `i` ao final do laço? Qual é o valor da variável `x` ao final do laço? 
+
+R: `i = N `. `x = 1`
+
+c) Qual seria o valor de `x` ao final do laço se seu escopo fosse `shared`? 
+
+R: `x = N + 1`
+
+d) Este laço pode ser paralelizado corretamente (isto é, preservando a semântica sequencial) apenas com o uso de diretivas OpenMP?
 
 **10)** Quais os mecanismos disponíveis no OpenMP para lidar com as condições de corrida? (0,5 ponto)
 
