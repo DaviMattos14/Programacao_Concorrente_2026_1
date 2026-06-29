@@ -19,7 +19,7 @@ R: Retorna o número de processadores (núcleos lógicos) físicos disponíveis 
 Fora e Dentro da região retorna exatamente o mesmo valor.
 
 d) `omp_in_parallel()`
-R: Retorna um valor booleano (verdadeiro ou falso) indicando se o código atual está sendo executado por múltiplas threads em paralelo. Fora da região retorna 0 (Falso). Dentro da região retorna 11 (Verdadeiro).
+R: Retorna um valor booleano (verdadeiro ou falso) indicando se o código atual está sendo executado por múltiplas threads em paralelo. Fora da região retorna 0 (Falso). Dentro da região retorna 1 (Verdadeiro).
 
 **2)** Quais as diferenças entre a declaração de variáveis `private`, `firstprivate` e `lastprivate`? Em quais diretivas são utilizadas? (0,5 ponto)
 
@@ -58,15 +58,15 @@ int main() {
 ```
 Quatro tipos comuns de operações de redução:
 
-1. **Soma (`+`)**: Acumula a soma dos elementos.
-2. **Produto (`*`)**: Acumula o produto dos elementos.
-3. **Mínimo (`min`)**: Encontra o menor valor entre todos os elementos.
-4. **Máximo (`max`)**: Encontra o maior valor entre todos os elementos.
+**Soma (`+`)**: Acumula a soma dos elementos.
+**Produto (`*`)**: Acumula o produto dos elementos.
+**Mínimo (`min`)**: Encontra o menor valor entre todos os elementos.
+**Máximo (`max`)**: Encontra o maior valor entre todos os elementos.
 
 **5)** No código abaixo, faça um diagrama do escalonamento das iterações do laço entre 4 threads. (0,5 ponto)
 
 ```C
-#pragma omp for schedule(guided, 5)
+#pragma omp for schedule(guided,5)
 for (j = 0; j < 50; j++) 
     a[j] = b[j] + c[j]; 
 ```
@@ -433,4 +433,4 @@ graph LR
 
 **20)** Explique a diretiva `#pragma omp taskloop`. Mencione pelo menos duas cláusulas específicas que podem ser usadas com `taskloop` e descreva suas funções. (0,5 ponto)
 
-R: A diretiva `taskloop` 
+R: A diretiva `taskloop` transforma um laço de repetição em pequenos blocos de tarefa (`task`). Umas de suas cláusulas são, `grainsize(n)`, que especifica o número aproximado de iterações que cada tarefa gerada deve conter, `num_tasks(n)`: especifica diretamente o número de tarefas a serem criadas.
