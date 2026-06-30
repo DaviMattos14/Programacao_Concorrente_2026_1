@@ -104,7 +104,7 @@ R:
     
     #pragma omp for nowait 
     for (j = 0; j < n; j++) { 
-        z[j] = (a[j] + a[j+1]) * 8.5; 
+        z[j] = (a[j] + a[j+1]) * 0.5; 
     } 
 }
 ```
@@ -146,7 +146,7 @@ R: O laço externo pode ser paralelizado: cada valor de `i` opera sobre uma colu
 **c)**
 ```C
 for (k = 0; k < N; k++) 
-    x[k] = q + y[k] * (r * z[k+10] + t * z[k+10]); 
+    x[k] = q + y[k] * (r * z[k+10] + t * z[k+11]); 
 ```
 R: **Sim.** Cada iteração $k$ escreve apenas em `x[k]` e lê de `y[k]` e `z[k+10]`. Como nenhuma escrita sobrepõe uma leitura de outra iteração (a escrita é sempre em `x[k]`), não há dependência de dados.
 
@@ -199,11 +199,11 @@ for(i = 0; i < N; i++) {
 
 a) Porque este laço está incorreto? `y[i]` recebe o mesmo resultado independente do número de threads executando o laço? 
 
-R: Por causa de `firstprivate(x)` que garante que o valor de `x` dentro da região paralela será sempre 1. 
+R: Por causa de `firstprivate(x)` que garante que o valor de `x` dentro da região paralela será sempre 1. Não,  cada thread reinicia sua cópia de x em 1, então só o primeiro i de cada bloco/thread sai errado.
 
 b) Qual o valor da variável `i` ao final do laço? Qual é o valor da variável `x` ao final do laço? 
 
-R: `i = N `. `x = 1`
+R: `i =` indefinido. `x = 1`
 
 c) Qual seria o valor de `x` ao final do laço se seu escopo fosse `shared`? 
 
@@ -424,9 +424,6 @@ graph LR
 
     T3 --> T5
     T4 --> T6
-
-    T5 --> T2
-    T6 --> T2
 ```
 
 ![[Pasted image 20260629184859.png]]
