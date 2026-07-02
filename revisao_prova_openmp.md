@@ -333,11 +333,12 @@ int main() {
 **R5.** Porque a divisão em `dynamic` é decidida **em tempo de execução**: cada thread pega o próximo chunk disponível assim que fica livre, e isso depende da velocidade real de execução de cada thread naquele momento específico — não é algo determinístico como em `static`.
 
 **R6.**
-| Schedule | Decisão tomada quando? | Melhor cenário |
-|---|---|---|
-| static | Antes de rodar (compile/início) | Iterações com custo uniforme |
-| dynamic | Durante a execução | Iterações com custo desigual/imprevisível |
-| guided | Híbrido, blocos decrescentes | Meio-termo entre os dois |
+
+| Schedule | Decisão tomada quando?          | Melhor cenário                            |
+| :------- | :------------------------------ | :---------------------------------------- |
+| static   | Antes de rodar (compile/início) | Iterações com custo uniforme              |
+| dynamic  | Durante a execução              | Iterações com custo desigual/imprevisível |
+| guided   | Híbrido, blocos decrescentes    | Meio-termo entre os dois                  |
 
 **R7.** `dynamic` (ou `guided`) — já que o custo é desigual entre a primeira e a segunda metade, um `static` deixaria as threads que pegaram a parte lenta muito mais ocupadas que as outras, criando desbalanceamento. `dynamic` permite que threads que terminam rápido (a parte fácil) peguem mais trabalho da parte difícil.
 
