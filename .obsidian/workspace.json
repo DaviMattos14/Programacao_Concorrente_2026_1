@@ -35,7 +35,8 @@
               "title": "Segunda_Lista_Exercicios_ProgConc_"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -152,13 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "revisao_prova_openmp.md",
+                "file": "Listas/Lista 2/Segunda_Lista_Exercicios_ProgConc_.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sumário de revisao_prova_openmp"
+              "title": "Sumário de Segunda_Lista_Exercicios_ProgConc_"
             }
           },
           {
@@ -233,8 +234,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "79c3aabc4d5d1da0",
+  "active": "9cf7164fe7f1ed6b",
   "lastOpenFiles": [
+    "Documentação OpenMP.md",
+    "revisao_prova_openmp.md",
     "Listas/Lista 2/revisao_prova_openmp.pdf",
     "cheatsheet_openmp_exemplos.md",
     "Listas/Lista 2/cheatsheet_openmp_exemplos.pdf",
@@ -254,7 +257,6 @@
     "Listas/Lista 2/Segunda Lista de Exercícios - Programação Concorrente.pdf",
     "Conteúdo/Dominando_Laços_no_OpenMP.mp4",
     "Conteúdo/Sincronização_no_OpenMP.mp4",
-    "Conteúdo/OpenMP__Programação_Paralela.mp4",
     "Conteúdo/NotebookLM Mind Map.png",
     "Conteúdo/Resumo Programação Concorrente.md",
     "Conteúdo/Arquiteturas Paralelas e Avaliação de Desempenho.md",
