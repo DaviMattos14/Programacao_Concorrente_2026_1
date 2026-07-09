@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Listas/Lista 2/Segunda_Lista_Exercicios_ProgConc_.md",
+                "file": "DOCUMENTACAO_COMPLETA_PTHREADSv2.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Segunda_Lista_Exercicios_ProgConc_"
+              "title": "DOCUMENTACAO_COMPLETA_PTHREADSv2"
             }
           }
         ],
@@ -153,13 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Listas/Lista 2/Segunda_Lista_Exercicios_ProgConc_.md",
+                "file": "DOCUMENTACAO_COMPLETA_PTHREADSv2.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sumário de Segunda_Lista_Exercicios_ProgConc_"
+              "title": "Sumário de DOCUMENTACAO_COMPLETA_PTHREADSv2"
             }
           },
           {
@@ -236,6 +236,8 @@
   },
   "active": "9cf7164fe7f1ed6b",
   "lastOpenFiles": [
+    "DOCUMENTACAO_COMPLETA_PTHREADSv2.pdf",
+    "Listas/Lista 2/Segunda_Lista_Exercicios_ProgConc_.md",
     "Documentação OpenMP.md",
     "revisao_prova_openmp.md",
     "Listas/Lista 2/revisao_prova_openmp.pdf",
@@ -245,7 +247,6 @@
     "Listas/Lista 2/cheatsheet_openmp.pdf",
     "Segunda Lista de Exercícios - Programação Concorrente.md",
     "Listas/Lista 2/DAVI_S_MATTOS_2_LISTA.pdf",
-    "Listas/Lista 2/Segunda_Lista_Exercicios_ProgConc_.md",
     "Listas/Lista 2/Segunda Lista de Exercícios ProgConc.pdf",
     "Pasted image 20260629184459.png",
     "Pasted image 20260629184859.png",
