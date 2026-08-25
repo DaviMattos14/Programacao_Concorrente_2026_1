@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "DOCUMENTACAO_COMPLETA_PTHREADSv2.md",
+                "file": "cheatsheet_openmp.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DOCUMENTACAO_COMPLETA_PTHREADSv2"
+              "title": "cheatsheet_openmp"
             }
           }
         ],
@@ -153,13 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "DOCUMENTACAO_COMPLETA_PTHREADSv2.md",
+                "file": "cheatsheet_openmp.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sumário de DOCUMENTACAO_COMPLETA_PTHREADSv2"
+              "title": "Sumário de cheatsheet_openmp"
             }
           },
           {
@@ -236,12 +236,15 @@
   },
   "active": "9cf7164fe7f1ed6b",
   "lastOpenFiles": [
+    "cheatsheet_openmp1.pdf",
+    "cheatsheet_openmp_exemplos.md",
+    "cheatsheet_openmp.md.pdf",
+    "DOCUMENTACAO_COMPLETA_PTHREADSv2.md",
     "DOCUMENTACAO_COMPLETA_PTHREADSv2.pdf",
     "Listas/Lista 2/Segunda_Lista_Exercicios_ProgConc_.md",
     "Documentação OpenMP.md",
     "revisao_prova_openmp.md",
     "Listas/Lista 2/revisao_prova_openmp.pdf",
-    "cheatsheet_openmp_exemplos.md",
     "Listas/Lista 2/cheatsheet_openmp_exemplos.pdf",
     "cheatsheet_openmp.md",
     "Listas/Lista 2/cheatsheet_openmp.pdf",
@@ -256,8 +259,6 @@
     "Listas/Lista 2/soma.exe",
     "Listas/Lista 2/lista2.c",
     "Listas/Lista 2/Segunda Lista de Exercícios - Programação Concorrente.pdf",
-    "Conteúdo/Dominando_Laços_no_OpenMP.mp4",
-    "Conteúdo/Sincronização_no_OpenMP.mp4",
     "Conteúdo/NotebookLM Mind Map.png",
     "Conteúdo/Resumo Programação Concorrente.md",
     "Conteúdo/Arquiteturas Paralelas e Avaliação de Desempenho.md",
